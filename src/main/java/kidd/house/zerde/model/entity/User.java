@@ -1,16 +1,20 @@
 package kidd.house.zerde.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import kidd.house.zerde.model.role.Authorities;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -20,13 +24,44 @@ public class User {
     private String login;
     @Column(name = "password")
     private String password;
-    @ElementCollection(targetClass = Authorities.class,fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role",joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    private Set<Authorities> authoritiesSet;
+    @Column(name = "email")
+    @Email
+    private String email;
+    @Enumerated(value = EnumType.STRING)
+    private Authorities authorities;
     @ManyToMany
     @JoinTable(name = "teacher_subjects", joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "subjects_id"))
     private List<Subject> subjects;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(authorities.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;//UserDetails.super.isAccountNonExpired()
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;//UserDetails.super.isAccountNonLocked()
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;//UserDetails.super.isCredentialsNonExpired()
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;//UserDetails.super.isEnabled()
+    }
 }
 
