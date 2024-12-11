@@ -31,7 +31,7 @@ public class JWTServiceImpl implements JWTService {
                 .compact();
     }
     public String extractUserName(String token){
-        return extractUserName(token);
+        return extractClaim(token, Claims::getSubject);
     }
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
         final Claims claims = extractAllClaims(token);
@@ -50,7 +50,7 @@ public class JWTServiceImpl implements JWTService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
     private boolean isTokenExpired(String token){
-        return extractClaim(token,Claims::getExpiration).before(new Date());
+        return extractClaim(token, Claims::getExpiration).before(new Date());
 
     }
 }

@@ -1,4 +1,4 @@
-package kidd.house.zerde.dto;
+package kidd.house.zerde.dto.registration;
 
 import jakarta.validation.constraints.NotBlank;
 
