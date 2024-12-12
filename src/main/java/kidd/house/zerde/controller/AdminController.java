@@ -2,13 +2,15 @@ package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.*;
+import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
+import kidd.house.zerde.service.LessonService;
+import kidd.house.zerde.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,23 +21,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 public class AdminController {
+    private final LessonService lessonService;  // Сервис для работы с уроками
+    private final MailSenderService mailSenderService;  // Сервис для отправки email
     @GetMapping
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi Admin");
     }
     @GetMapping("/first-visit-schedule")
     public ResponseEntity<List<LessonDto>> schedule(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        List<LessonDto> lessons = new ArrayList<>();
-        lessons.add(new LessonDto(
-                1,
-                new TeacherDto("Грегориевна Анна Александровна"),
-                new ChildDto("Петров Петр Петрович"),
-                LocalDateTime.of(2024, 10, 13, 10, 0).format(formatter), // Дата и время начала
-                LocalDateTime.of(2024, 10, 13, 11, 0).format(formatter), // Дата и время окончания
-                new RoomDto( "Кабинет 101"),
-                new ParentDto("Касандра Александровна","+77754768093")
-        ));
+        // Получаем список уроков из сервиса
+        List<LessonDto> lessons = lessonService.getAllLessons();
         return ResponseEntity.ok(lessons);
     }
     @GetMapping("/week-schedule")
@@ -82,5 +77,33 @@ public class AdminController {
 
         return ResponseEntity.ok("Lesson locked successfully for room ID " + roomId
                 + " from " + lockDateTimeFrom + " to " + lockDateTimeTo);
+    }
+    @PostMapping("/send-notification")
+    public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notificationRequest) {
+        int lessonId = notificationRequest.lessonId();
+        LessonDto lesson = lessonService.findById(lessonId);
+        // Поиск урока по lessonId через сервис
+        if (lesson == null) {
+            return ResponseEntity.status(404).body("Lesson not found");
+        }
+
+        // Формирование сообщения
+        String message = String.format(
+                "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
+                lesson.childDto().child(),
+                lesson.teacherName().name(),
+                lesson.from(),
+                lesson.to(),
+                lesson.roomDto().name()
+        );
+
+        // Отправка email родителю
+        mailSenderService.send(
+                lesson.parentDto().email(),  // Используем email или телефон родителя
+                "Напоминание о предстоящем уроке",
+                message
+        );
+
+        return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
 }
