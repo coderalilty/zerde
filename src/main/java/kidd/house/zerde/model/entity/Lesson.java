@@ -24,12 +24,6 @@ public class Lesson {
     @LastModifiedDate
     @Column(name = "update_date")
     private LocalDateTime to;
-    //    public LocalDateTime getFrom() {
-//        return from;
-//    }
-//    public LocalDateTime getTo() {
-//        return to;
-//    }
     @Column(name = "lesson_type")
     @Enumerated(EnumType.STRING)
     private LessonType lessonType;
@@ -50,5 +44,4 @@ public class Lesson {
     @OneToOne
     @JoinColumn(name = "users_id")
     private User user;
-
 }

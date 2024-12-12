@@ -6,7 +6,10 @@ import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.service.LessonService;
 import kidd.house.zerde.service.MailSenderService;
+import kidd.house.zerde.service.ParentService;
+import kidd.house.zerde.service.TelegramService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,15 +26,23 @@ import java.util.stream.Collectors;
 public class AdminController {
     private final LessonService lessonService;  // Сервис для работы с уроками
     private final MailSenderService mailSenderService;  // Сервис для отправки email
+    private final TelegramService telegramService;
+    private final ParentService parentService;
     @GetMapping
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi Admin");
     }
     @GetMapping("/first-visit-schedule")
     public ResponseEntity<List<LessonDto>> schedule(){
+//        // Получаем список уроков из сервиса
+//        List<LessonDto> lessons = lessonService.getAllLessons();
+//        return ResponseEntity.ok(lessons);
         // Получаем список уроков из сервиса
         List<LessonDto> lessons = lessonService.getAllLessons();
-        return ResponseEntity.ok(lessons);
+        if (!lessons.isEmpty()){
+            return new ResponseEntity<>(lessons, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null , HttpStatus.NOT_FOUND);
     }
     @GetMapping("/week-schedule")
     public ResponseEntity<List<WeekScheduleResponse>> weekSchedule() {
@@ -96,13 +107,34 @@ public class AdminController {
                 lesson.to(),
                 lesson.roomDto().name()
         );
+        try {
+            // Отправка email родителю, если указан email
+            if (lesson.parentDto().email() != null) {
+                mailSenderService.send(
+                        lesson.parentDto().email(),
+                        "Напоминание о предстоящем уроке",
+                        message
+                );
+            }
+            System.out.println("Формируемое сообщение: " + message);
+            // Отправка уведомления в Telegram, если указан номер телефона
+            if (lesson.parentDto().phoneNumber() != null) {
+                String chatId = parentService.getChatId(1L);
+                System.out.println("Полученный chatId: " + chatId);
+                if (chatId != null) {
+                    telegramService.sendMessageToChat(Long.valueOf(chatId),message);
+                } else {
+                    System.out.println("chatId не найден для телефона: " + lesson.parentDto().phoneNumber());
+                }
+            } else {
+                System.out.println("Номер телефона родителя не указан.");
+            }
 
-        // Отправка email родителю
-        mailSenderService.send(
-                lesson.parentDto().email(),  // Используем email или телефон родителя
-                "Напоминание о предстоящем уроке",
-                message
-        );
+        } catch (Exception e) {
+            // Логгирование ошибки
+            System.err.println("Ошибка при отправке уведомления: " + e.getMessage());
+            return ResponseEntity.status(500).body("Failed to send notification");
+        }
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }

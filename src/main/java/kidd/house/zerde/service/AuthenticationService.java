@@ -10,6 +10,4 @@ public interface AuthenticationService {
     User signUp(SignUpRequest signUpRequest);
     JwtAuthenticationResponce signIn(SignInRequest signInRequest);
     JwtAuthenticationResponce refreshToken(RefreshTokenRequest refreshTokenRequest);
-//    boolean isUserExists(String name);
-//    boolean isEmailExists(String email);
 }

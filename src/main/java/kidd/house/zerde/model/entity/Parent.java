@@ -3,6 +3,7 @@ package kidd.house.zerde.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Data
@@ -22,6 +23,10 @@ public class Parent {
     private String phoneNumber;
     @Column(name = "mail")
     private String mail;
+    @Column(name = "chat_id")
+    private Long chatId;
+    @Column(name = "registered_at")
+    private Timestamp registeredAt;
     @OneToMany(mappedBy = "parent")
     private List<Child> children;
 }

@@ -24,13 +24,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
-    //    public boolean isUserExists(String name) {
-//        return userRepo.findByName(name).isPresent();
-//    }
-//    public boolean isEmailExists(String email) {
-//        // Проверяем наличие пользователя в базе данных по email
-//        return userRepo.findByEmail(email).isPresent();
-//    }
     public User signUp(SignUpRequest signUpRequest){
         User user = new User();
 
