@@ -1,7 +1,7 @@
 package kidd.house.zerde.model.record;
 
 
-import kidd.house.zerde.dto.LessonDto;
+import kidd.house.zerde.dto.schedule.LessonDto;
 
 import java.time.LocalDateTime;
 
