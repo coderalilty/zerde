@@ -1,12 +1,11 @@
 package kidd.house.zerde.controller;
 
+import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.*;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,5 +62,25 @@ public class AdminController {
         });
 
         return ResponseEntity.ok(weekSchedule);
+    }
+    @PostMapping("/lock-lesson")
+    public ResponseEntity<String> lockLesson(@RequestBody LockLessonRequest lockLessonRequest) {
+        // Логика для поиска свободного урока и блокировки
+
+        // Примерная логика:
+        // 1. Поиск свободного урока по roomId (можно проверить по базе данных)
+        // 2. Проверка доступности комнаты на указанный интервал времени (lockDateTimeFrom, lockDateTimeTo)
+        // 3. Если комната свободна, устанавливаем заглушку и сохраняем изменения
+
+        String lockDateTimeFrom = lockLessonRequest.lockDateTimeFrom();
+        String lockDateTimeTo = lockLessonRequest.lockDateTimeTo();
+        int roomId = lockLessonRequest.roomId();
+
+        // Логика проверки свободного статуса и блокировки (заглушки)
+        // Например, через вызов соответствующего сервиса:
+        // lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomId);
+
+        return ResponseEntity.ok("Lesson locked successfully for room ID " + roomId
+                + " from " + lockDateTimeFrom + " to " + lockDateTimeTo);
     }
 }
