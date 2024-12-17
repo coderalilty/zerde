@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-8.0:3306/zerde-kidd-house
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD:
+      TELEGRAM_BOT_TOKEN: 7569987591:AAHLdh0f7XBo-1GSoRi7aCII5iInZt5P2Xw
+      TELEGRAM_BOT_USERNAME: zerde_kidd_house_bot
+    volumes:
+      - ./logs:/app/logs
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: zerde-kidd-house
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
