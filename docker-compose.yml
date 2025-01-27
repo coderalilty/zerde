@@ -9,6 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      SPRING_CONFIG_LOCATION: file:/app/application.properties
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
@@ -18,9 +19,11 @@ services:
       TELEGRAM_BOT_TOKEN: 7569987591:AAHLdh0f7XBo-1GSoRi7aCII5iInZt5P2Xw
     depends_on:
       - db
+    volumes:
+      - ./src/main/resources/application.properties:/app/application.properties  # Mounts properties file.
 
   db:
-    image: mysql:8.0
+    image: mysql:8.0.41
     container_name: mysql-8.0
     ports:
       - "3306:3306"
