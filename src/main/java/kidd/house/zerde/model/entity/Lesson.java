@@ -5,10 +5,7 @@ import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -18,12 +15,16 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @CreatedDate
     @Column(name = "create_date")
-    private LocalDateTime from;
-    @LastModifiedDate
+    private String from;
     @Column(name = "update_date")
-    private LocalDateTime to;
+    private String to;
+    @Column(name = "lesson_name")
+    private String lessonName;
+    @Column(name = "lesson_day")
+    private String lessonDay;
+    @Column(name = "lesson_time")
+    private String lessonTime;
     @Column(name = "lesson_type")
     @Enumerated(EnumType.STRING)
     private LessonType lessonType;

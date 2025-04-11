@@ -89,7 +89,7 @@ public class TelegramService extends TelegramLongPollingBot {
             var chat = message.getChat();
             Parent parent = new Parent();
             parent.setChatId(chatId);
-            parent.setFirstName(chat.getFirstName());
+            parent.setParentName(chat.getFirstName());
             parent.setLastName(chat.getLastName());
             parent.setMiddleName(chat.getUserName());
             parent.setRegisteredAt(new Timestamp(System.currentTimeMillis()));

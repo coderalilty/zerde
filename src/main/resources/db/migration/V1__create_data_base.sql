@@ -32,11 +32,14 @@ CREATE TABLE IF NOT EXISTS `diagnoses` (
 
 CREATE TABLE IF NOT EXISTS `lessons` (
                                          `id` int auto_increment primary key,
-                                         `create_date` datetime(6) DEFAULT NULL,
+                                         `create_date` varchar(255) DEFAULT NULL,
+                                         `lesson_name` varchar(255) DEFAULT NULL,
+                                         `lesson_day` varchar(255) DEFAULT NULL,
+                                         `lesson_time` varchar(255) DEFAULT NULL,
                                          `group_type` enum('GROUP','INDIVIDUAL') DEFAULT NULL,
                                          `lesson_status` enum('CANCELLED','COMPLETED','RESERVED','SCHEDULED') DEFAULT NULL,
                                          `lesson_type` enum('AUTISM','DIKTOLOG','LOGOPED','PERMANENT','TRIAL') DEFAULT NULL,
-                                         `update_date` datetime(6) DEFAULT NULL,
+                                         `update_date` varchar(255) DEFAULT NULL,
                                          `rooms_id` int DEFAULT NULL,
                                          `subjects_id` int DEFAULT NULL,
                                          `users_id` int DEFAULT NULL
@@ -50,11 +53,11 @@ CREATE TABLE IF NOT EXISTS `lessons` (
 
 CREATE TABLE IF NOT EXISTS `parents` (
                                          `id` int auto_increment primary key,
-                                         `first_name` varchar(255) DEFAULT NULL,
+                                         `parent_name` varchar(255) DEFAULT NULL,
                                          `last_name` varchar(255) DEFAULT NULL,
-                                         `mail` varchar(255) DEFAULT NULL,
+                                         `parent_email` varchar(255) DEFAULT NULL,
                                          `middle_name` varchar(255) DEFAULT NULL,
-                                         `phone_number` varchar(255) DEFAULT NULL,
+                                         `parent_phone` varchar(255) DEFAULT NULL,
                                          `registered_at` TIMESTAMP DEFAULT NULL,
                                          `chat_id` BIGINT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

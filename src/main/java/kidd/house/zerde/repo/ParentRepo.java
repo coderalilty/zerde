@@ -14,4 +14,10 @@ public interface ParentRepo extends JpaRepository<Parent,Long> {
     Optional<String> findByChatIdWhereParentId(@Param("id") Long id);
     @Query("SELECT p.chatId FROM Parent p")
     Optional<Long> findByChatId(Long chat_id);
+
+    Parent findByParentNameAndParentPhoneAndParentEmail(
+            String parentName,
+            String parentPhone,
+            String parentEmail
+    );
 }
