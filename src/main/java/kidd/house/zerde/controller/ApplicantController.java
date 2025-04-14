@@ -23,6 +23,16 @@ public class ApplicantController {
                 new LessonTypeDto("PERMANENT",
                         List.of(new FreeLesson("2024-10-17 10:00", "2024-10-17 11:00"))
                 )));
+        lessonResponses.add(new SignUpLessonResponse(
+                new LessonDay("Понидельник","2024-10-17"),
+                new LessonTypeDto("frgh",
+                        List.of(new FreeLesson("2024-10-17 10:00", "2024-10-17 11:00"))
+                )));
+        lessonResponses.add(new SignUpLessonResponse(
+                new LessonDay("Понидельник","2024-10-17"),
+                new LessonTypeDto("PERMANENT",
+                        List.of(new FreeLesson("2024-10-17 10:00", "2024-10-17 11:00"))
+                )));
         return ResponseEntity.ok(lessonResponses);
     }
     @PostMapping

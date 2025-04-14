@@ -1,7 +1,6 @@
 package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.signupLesson.*;
-import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.SignupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,8 @@ import java.util.List;
 public class SignupController {
     private final SignupService signupService;
     @GetMapping
-    public ResponseEntity<List<Lesson>> signUpLesson(){
-        List<Lesson> lessonResponses = signupService.getLessons();
+    public ResponseEntity<List<SignUpLessonResponse>> signUpLesson(){
+        List<SignUpLessonResponse> lessonResponses = signupService.getLessons();
         return ResponseEntity.ok(lessonResponses);
     }
     @PostMapping

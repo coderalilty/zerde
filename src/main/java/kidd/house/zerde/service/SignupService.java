@@ -1,10 +1,14 @@
 package kidd.house.zerde.service;
 
+import kidd.house.zerde.dto.signupLesson.FreeLesson;
+import kidd.house.zerde.dto.signupLesson.LessonTypeDto;
+import kidd.house.zerde.dto.signupLesson.SignUpLessonResponse;
 import kidd.house.zerde.dto.signupLesson.SignupRequestDto;
 import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Diagnosis;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.Parent;
+import kidd.house.zerde.model.record.LessonDay;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
@@ -16,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SignupService {
@@ -78,10 +84,9 @@ public class SignupService {
         parentRepo.save(parent);
     }
     public boolean verifySignup(SignupRequestDto signupRequest) {
-        Lesson lesson = lessonRepo.findByLessonNameAndLessonDayAndLessonTime(
-                signupRequest.lessonTypeDto().lessonName(),
-                signupRequest.lessonDay(),
-                signupRequest.lessonTime()
+        Lesson lesson = lessonRepo.findByFromAndTo(
+                signupRequest.lessonTypeDto().freeLessons().getFirst().dateFrom(),
+                signupRequest.lessonTypeDto().freeLessons().getFirst().dateTo()
         );
 
         // Возвращаем true, если урок найден, иначе false
@@ -90,10 +95,10 @@ public class SignupService {
 
     public String updateStatus(SignupRequestDto signupRequest, String newStatus) {
         // Логика обновления статуса заявки
-        Lesson lesson = lessonRepo.findByLessonNameAndLessonDayAndLessonTime(
-                signupRequest.lessonTypeDto().lessonName(),
-                signupRequest.lessonDay(),
-                signupRequest.lessonTime()
+        Lesson lesson = lessonRepo.findByLessonTimeAndFromAndTo(
+                signupRequest.lessonTime(),
+                signupRequest.lessonTypeDto().freeLessons().getFirst().dateFrom(),
+                signupRequest.lessonTypeDto().freeLessons().getFirst().dateTo()
         );
         lesson.setLessonStatus(LessonStatus.RESERVED);
         lessonRepo.save(lesson);
@@ -103,8 +108,7 @@ public class SignupService {
 
     public void sendNotification(SignupRequestDto signupRequest) {
         // Логика отправки уведомления (в будущем можно интегрировать WhatsApp/Telegram API)
-        Parent parent = parentRepo.findByParentNameAndParentPhoneAndParentEmail(
-                signupRequest.parentName(),
+        Parent parent = parentRepo.findByParentPhoneAndParentEmail(
                 signupRequest.parentPhone(),
                 signupRequest.parentEmail()
         );
@@ -129,8 +133,39 @@ public class SignupService {
         System.out.println("Отправка уведомления для заявки: " + signupRequest.childName());
     }
 
-    public List<Lesson> getLessons() {
-        return lessonRepo.findAll();
+    public List<SignUpLessonResponse> getLessons() {
+        List<Lesson> lessons = lessonRepo.findAll();
+
+        return lessons.stream()
+                .collect(Collectors.groupingBy(
+                        lesson -> lesson.getLessonDay() + "_" + lesson.getLessonName() + "_" + lesson.getLessonTime()
+                ))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    List<Lesson> groupedLessons = entry.getValue();
+                    Lesson firstLesson = groupedLessons.get(0);
+
+                    // Сортируем по времени начала
+                    List<FreeLesson> freeLessons = groupedLessons.stream()
+                            .sorted(Comparator.comparing(Lesson::getFrom))
+                            .map(l -> new FreeLesson(l.getFrom(), l.getTo()))
+                            .toList();
+
+                    LessonDay lessonDay = new LessonDay(
+                            firstLesson.getLessonDay(),
+                            firstLesson.getLessonTime()
+                    );
+
+                    LessonTypeDto lessonTypeDto = new LessonTypeDto(
+                            firstLesson.getLessonName(),
+                            freeLessons
+                    );
+
+                    return new SignUpLessonResponse(lessonDay, lessonTypeDto);
+                })
+                .sorted(Comparator.comparing(r -> r.lessonDay().weekDay())) // Сортировка по дню
+                .toList();
     }
 
 }
