@@ -6,6 +6,7 @@ import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,8 +35,11 @@ public class Lesson {
     @Column(name = "group_type")
     @Enumerated(EnumType.STRING)
     private GroupType groupType;
-    @OneToMany(mappedBy = "lesson")
-    private List<Child> children;
+    @OneToMany(mappedBy = "lesson",cascade = CascadeType.ALL)
+    private List<Child> children = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "parents_id")
+    private Parent parent;
     @OneToOne
     @JoinColumn(name = "subjects_id")
     private Subject subject;
