@@ -6,6 +6,8 @@ import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
+import kidd.house.zerde.model.entity.LockedSlot;
+import kidd.house.zerde.repo.LockedSlotRepo;
 import kidd.house.zerde.service.LessonService;
 import kidd.house.zerde.service.MailSenderService;
 import kidd.house.zerde.service.ParentService;
@@ -26,6 +28,7 @@ public class AdminController {
     private final MailSenderService mailSenderService;  // Сервис для отправки email
     private final TelegramService telegramService;
     private final ParentService parentService;
+    private final LockedSlotRepo lockedSlotRepo;
     private final LessonMapper lessonMapper;
     @GetMapping
     public ResponseEntity<String> sayHello(){
@@ -65,22 +68,34 @@ public class AdminController {
     }
     @PostMapping("/lock-lesson")
     public ResponseEntity<String> lockLesson(@RequestBody LockLessonRequest lockLessonRequest) {
-        // Логика для поиска свободного урока и блокировки
-
-        // Примерная логика:
-        // 1. Поиск свободного урока по roomId (можно проверить по базе данных)
-        // 2. Проверка доступности комнаты на указанный интервал времени (lockDateTimeFrom, lockDateTimeTo)
-        // 3. Если комната свободна, устанавливаем заглушку и сохраняем изменения
 
         String lockDateTimeFrom = lockLessonRequest.lockDateTimeFrom();
         String lockDateTimeTo = lockLessonRequest.lockDateTimeTo();
-        int roomId = lockLessonRequest.roomId();
+        String roomName = lockLessonRequest.roomName();
+        // 1. Проверка: есть ли уроки в указанное время
+        List<Lesson> existingLessons = lessonService.findLessonsBetween(
+                lockDateTimeFrom,lockDateTimeTo,roomName);
 
-        // Логика проверки свободного статуса и блокировки (заглушки)
-        // Например, через вызов соответствующего сервиса:
-        // lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomId);
+        if (!existingLessons.isEmpty()) {
+            throw new IllegalStateException("В указанное время уже есть уроки");
+        }
 
-        return ResponseEntity.ok("Lesson locked successfully for room ID " + roomId
+        // 2. Проверка: нет ли уже заглушки
+        List<LockedSlot> lockedSlots = lockedSlotRepo
+                .findLockedBetween(lockDateTimeFrom,lockDateTimeTo,roomName);
+
+        if (!lockedSlots.isEmpty()) {
+            throw new IllegalStateException("Уже стоит заглушка на это время");
+        }
+
+        // 3. Сохранение заглушки
+        LockedSlot slot = new LockedSlot();
+        slot.setLockedFrom(lockDateTimeFrom);
+        slot.setLockedTo(lockDateTimeTo);
+        slot.setRoomName(roomName);
+        lockedSlotRepo.save(slot);
+
+        return ResponseEntity.ok("Lesson locked successfully for room ID " + roomName
                 + " from " + lockDateTimeFrom + " to " + lockDateTimeTo);
     }
     @PostMapping("/send-notification")

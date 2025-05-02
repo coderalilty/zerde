@@ -4,6 +4,7 @@ import kidd.house.zerde.model.entity.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -14,4 +15,9 @@ public interface LessonRepo extends JpaRepository<Lesson,Integer> {
             String To,
             String LessonTime
     );
+
+    List<Lesson> findByFromAndToAndRoom_Name(
+            String from,
+            String to,
+            String roomName);
 }

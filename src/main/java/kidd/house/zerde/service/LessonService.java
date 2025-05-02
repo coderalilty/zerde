@@ -25,4 +25,7 @@ public class LessonService {
     public Optional<Lesson> findById(int lessonId) {
         return lessonRepo.findById(lessonId);
     }
+    public List<Lesson> findLessonsBetween(String from,String to,String roomName){
+        return lessonRepo.findByFromAndToAndRoom_Name(from,to,roomName);
+    }
 }

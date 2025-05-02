@@ -7,12 +7,15 @@ import kidd.house.zerde.dto.signupLesson.SignupRequestDto;
 import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.Parent;
+import kidd.house.zerde.model.entity.Room;
 import kidd.house.zerde.model.record.LessonDay;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.LessonRepo;
+import kidd.house.zerde.repo.LockedSlotRepo;
 import kidd.house.zerde.repo.ParentRepo;
+import kidd.house.zerde.repo.RoomRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +31,11 @@ public class SignupService {
     @Autowired
     private ParentRepo parentRepo;
     @Autowired
+    private RoomRepo roomRepo;
+    @Autowired
     private MailSenderService mailSenderService;  // Сервис для отправки email
+    @Autowired
+    private LockedSlotRepo lockedSlotRepo;
     public String saveSignup(SignupRequestDto signupRequest, String status) {
         // Валидация запроса
         if (signupRequest == null) {
@@ -49,17 +56,18 @@ public class SignupService {
         parent.setParentName(signupRequest.parentName());
         parent.setParentPhone(signupRequest.parentPhone());
         parent.setParentEmail(signupRequest.parentEmail());
-        parentRepo.save(parent);
+
 
         Child child = new Child();
         child.setFirstName(signupRequest.childName());
         child.setAge(signupRequest.age());
         //Не нужен потому что cascade = CascadeType.ALL указан в model
         //childRepo.save(child);
+        Room room = new Room();
+        room.setName("202");
 
         Lesson lesson = new Lesson();
         lesson.setLessonName(signupRequest.lessonTypeDto().lessonName());
-
         // !!! Копируем freeLessons в изменяемый список
         List<FreeLesson> freeLessons = new ArrayList<>(signupRequest.lessonTypeDto().freeLessons());
         if (freeLessons.isEmpty()) {
@@ -69,6 +77,14 @@ public class SignupService {
 
         lesson.setFrom(freeLessons.get(0).dateFrom());
         lesson.setTo(freeLessons.get(0).dateTo());
+        lesson.setRoom(room);
+        boolean isLocked = lockedSlotRepo.existsByRoomNameAndLockedFromLessThanAndLockedToGreaterThan(
+                room.getName(), lesson.getTo(), lesson.getFrom()
+        );
+
+        if (isLocked) {
+            throw new IllegalStateException("Время заблокировано, нельзя добавить урок");
+        }
 
         lesson.setLessonDay(signupRequest.lessonDay());
         lesson.setLessonTime(signupRequest.lessonTime());
@@ -81,14 +97,17 @@ public class SignupService {
         child.setLesson(lesson);
         lesson.getChildren().add(child);
 
-        lessonRepo.save(lesson);
 
         // Логика сохранения записи с начальным статусом "draft"
-        log.info("Сохранение записи с начальным статусом: " + status);
+
         // Проверка, сохранился ли урок
         boolean isLessonSaved = verifySignup(signupRequest);
 
         if (isLessonSaved) {
+            parentRepo.save(parent);
+            roomRepo.save(room);
+            lessonRepo.save(lesson);
+            log.info("Сохранение записи с начальным статусом: " + status);
             log.info("Урок успешно сохранен.");
         } else {
             log.error("Ошибка сохранения урока.");
