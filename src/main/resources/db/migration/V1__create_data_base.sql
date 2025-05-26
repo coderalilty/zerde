@@ -116,7 +116,6 @@ CREATE TABLE IF NOT EXISTS `users` (
                                        `id` int auto_increment primary key,
                                        `authorities` enum('ADMIN','TEACHER') DEFAULT NULL,
                                        `email` varchar(255) DEFAULT NULL,
-                                       `login` varchar(255) DEFAULT NULL,
                                        `name` varchar(255) DEFAULT NULL,
                                        `password` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

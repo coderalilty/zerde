@@ -121,12 +121,8 @@ public class SignupService {
                 signupRequest.lessonTime()
         );
 
-        Lesson lesson = lessonOptional.orElseThrow(() ->
-                new IllegalStateException("Lesson совпадают!")
-        );
-
         // Возвращаем true, если урок найден, иначе false
-        return lesson != null;
+        return lessonOptional != null;
     }
 
     public String updateStatus(SignupRequestDto signupRequest, String newStatus) {

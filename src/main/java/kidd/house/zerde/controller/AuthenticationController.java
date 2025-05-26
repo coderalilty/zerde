@@ -5,7 +5,6 @@ import kidd.house.zerde.dto.registration.JwtAuthenticationResponce;
 import kidd.house.zerde.dto.registration.RefreshTokenRequest;
 import kidd.house.zerde.dto.registration.SignInRequest;
 import kidd.house.zerde.dto.registration.SignUpRequest;
-import kidd.house.zerde.model.entity.User;
 import kidd.house.zerde.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@RequestBody SignUpRequest signUpRequest){
-        return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
+    public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest){
+        authenticationService.signUp(signUpRequest);
+        return ResponseEntity.ok("Аккаунт успешно сохранен!");
     }
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponce> signIn(@RequestBody SignInRequest signInRequest){
@@ -31,4 +31,5 @@ public class AuthenticationController {
     public ResponseEntity<JwtAuthenticationResponce> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
         return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
     }
+
 }

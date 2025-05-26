@@ -13,10 +13,8 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Разрешаем CORS для всех эндпоинтов
-                        .allowedOrigins("http://localhost:3000") // Разрешенный источник
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Разрешенные HTTP-методы
-                        .allowedHeaders("*") // Разрешенные заголовки
-                        .allowCredentials(true); // Разрешаем куки и аутентификацию
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS"); // Разрешенные HTTP-методы
+
             }
         };
     }
