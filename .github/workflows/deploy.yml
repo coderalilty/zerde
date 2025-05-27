@@ -30,7 +30,10 @@ jobs:
           ls -la build/libs
 
       - name: Rename jar for Docker
-        run: mv build/libs/*.jar app.jar
+        run: |
+          JAR=$(find build/libs -name '*-SNAPSHOT.jar' ! -name '*-plain.jar' | head -n 1)
+          echo "Found jar: $JAR"
+          mv "$JAR" app.jar
 
       - name: Copy jar and docker files to VPS
         uses: appleboy/scp-action@v0.1.6
