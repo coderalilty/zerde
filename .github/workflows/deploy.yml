@@ -46,7 +46,7 @@ jobs:
             Dockerfile
             docker-compose.yml
           target: /opt/zerde
-
+            
       - name: SSH and deploy on VPS
         uses: appleboy/ssh-action@master
         with:
