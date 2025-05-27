@@ -21,6 +21,7 @@ services:
       - db
     volumes:
       - ./src/main/resources/application.properties:/app/application.properties  # Mounts properties file.
+    restart: unless-stopped
 
   db:
     image: mysql:8.0.41
@@ -31,7 +32,8 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: zerde-kidd-house
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/
+    restart: unless-stopped
 
 volumes:
   db_data:
