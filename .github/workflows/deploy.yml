@@ -21,7 +21,7 @@ jobs:
           source: "."
           target: "/opt/zerde"
 
-      - name: Build and restart Docker container
+      - name: Build and restart Docker container on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_IP }}
@@ -29,7 +29,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/zerde
-            ./gradlew build -p backend
+            # Делаем gradlew исполняемым
+            chmod +x ./gradlew
+            # Собираем билд (если проект в корне, иначе укажи путь -p backend)
+            ./gradlew build
+            # Останавливаем и удаляем контейнеры
             docker compose down
+            # Строим образы
             docker compose build
+            # Запускаем в фоне
             docker compose up -d
