@@ -35,6 +35,19 @@ jobs:
           echo "Found jar: $JAR"
           mv "$JAR" app.jar
 
+      - name: Rename jar for Docker
+        run: |
+          JAR=$(find build/libs -name '*-SNAPSHOT.jar' ! -name '*-plain.jar' | head -n 1)
+          if [ -z "$JAR" ]; then
+            echo "No suitable JAR found!"
+            exit 1
+          fi
+          echo "Found jar: $JAR"
+          cp "$JAR" ./app.jar
+
+      - name: List files in workspace root before SCP
+        run: ls -la
+
       - name: Copy jar and docker files to VPS
         uses: appleboy/scp-action@v0.1.6
         with:
@@ -46,15 +59,3 @@ jobs:
             Dockerfile
             docker-compose.yml
           target: /opt/zerde
-            
-      - name: SSH and deploy on VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ubuntu
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /opt/zerde
-            docker compose down
-            docker compose build
-            docker compose up -d
