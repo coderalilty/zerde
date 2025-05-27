@@ -24,6 +24,11 @@ jobs:
       - name: Build jar
         run: ./gradlew clean build
 
+      - name: Show JARs in build/libs
+        run: |
+          echo "Contents of build/libs:"
+          ls -la build/libs
+
       - name: Rename jar for Docker
         run: mv build/libs/*.jar app.jar
 
