@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/zerde
-            ./gradlew build -p backend
+            gradle build
             docker compose down
             docker compose build
             docker compose up -d
