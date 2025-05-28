@@ -29,18 +29,18 @@ jobs:
           echo "Contents of build/libs:"
           ls -la build/
 
+      - name: Rename jar for Docker
+        run: |
+          JAR=$(find build/libs -name '*-SNAPSHOT.jar' ! -name '*-plain.jar' | head -n 1)
+          echo "Found jar: $JAR"
+          cp "$JAR" ./app.jar
+
       - name: Verify app.jar exists
         run: |
           if [ ! -f app.jar ]; then
            echo "app.jar not found!"
            exit 1
           fi
-
-      - name: Rename jar for Docker
-        run: |
-          JAR=$(find build/libs -name '*-SNAPSHOT.jar' ! -name '*-plain.jar' | head -n 1)
-          echo "Found jar: $JAR"
-          cp "$JAR" ./app.jar
 
       - name: List files in workspace root before SCP
         run: ls -la
