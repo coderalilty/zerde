@@ -35,16 +35,6 @@ jobs:
           echo "Found jar: $JAR"
           mv "$JAR" app.jar
 
-      - name: Rename jar for Docker
-        run: |
-          JAR=$(find build/libs -name '*-SNAPSHOT.jar' ! -name '*-plain.jar' | head -n 1)
-          if [ -z "$JAR" ]; then
-            echo "No suitable JAR found!"
-            exit 1
-          fi
-          echo "Found jar: $JAR"
-          cp "$JAR" ./app.jar
-
       - name: List files in workspace root before SCP
         run: ls -la
 
