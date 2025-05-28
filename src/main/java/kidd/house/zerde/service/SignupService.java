@@ -1,5 +1,6 @@
 package kidd.house.zerde.service;
 
+import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
 import kidd.house.zerde.dto.signupLesson.FreeLesson;
 import kidd.house.zerde.dto.signupLesson.LessonTypeDto;
 import kidd.house.zerde.dto.signupLesson.SignUpLessonResponse;
@@ -33,7 +34,7 @@ public class SignupService {
     @Autowired
     private RoomRepo roomRepo;
     @Autowired
-    private MailSenderService mailSenderService;  // Сервис для отправки email
+    private EmailKafkaProducer emailKafkaProducer;  // Сервис для отправки email
     @Autowired
     private LockedSlotRepo lockedSlotRepo;
     public String saveSignup(SignupRequestDto signupRequest, String status) {
@@ -162,11 +163,11 @@ public class SignupService {
         );
         // Отправка email родителю, если указан email
         if (parent.getParentEmail() != null) {
-            mailSenderService.send(
+            emailKafkaProducer.sendEmail(new EmailMessageDto(
                     parent.getParentEmail(),
                     "Напоминание о предстоящем уроке",
                     message
-            );
+            ));
         }
         System.out.println("Отправка уведомления для заявки: " + signupRequest.childName());
     }
