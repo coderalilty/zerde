@@ -12,7 +12,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**"); // Разрешаем CORS для всех эндпоинтов
+                registry.addMapping("/**").allowedOrigins("*"); // Разрешаем CORS для всех эндпоинтов
             }
         };
     }
