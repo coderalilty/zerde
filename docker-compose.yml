@@ -28,6 +28,7 @@ services:
     ports:
       - "3306:3306"
     environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: zerde-kidd-house
     volumes:
