@@ -40,6 +40,8 @@ dependencies {
 
     implementation 'org.telegram:telegrambots-spring-boot-starter:6.9.7.1'
     implementation 'com.vdurmont:emoji-java:5.1.1'
+
+    implementation 'org.springframework.kafka:spring-kafka:4.0.0-M2'
 }
 
 tasks.named('test') {
