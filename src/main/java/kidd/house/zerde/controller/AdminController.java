@@ -6,8 +6,6 @@ import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
-import kidd.house.zerde.model.entity.LockedSlot;
-import kidd.house.zerde.repo.LockedSlotRepo;
 import kidd.house.zerde.service.LessonService;
 import kidd.house.zerde.service.MailSenderService;
 import kidd.house.zerde.service.ParentService;
@@ -28,12 +26,7 @@ public class AdminController {
     private final MailSenderService mailSenderService;  // Сервис для отправки email
     private final TelegramService telegramService;
     private final ParentService parentService;
-    private final LockedSlotRepo lockedSlotRepo;
     private final LessonMapper lessonMapper;
-    @GetMapping
-    public ResponseEntity<String> sayHello(){
-        return ResponseEntity.ok("Hi Admin");
-    }
     @GetMapping("/first-visit-schedule")
     public ResponseEntity<List<LessonDto>> schedule(){
         // Получаем список уроков из сервиса
@@ -50,7 +43,7 @@ public class AdminController {
         String lessonTime = lessonMapper.getLessonTime();
         // Группируем уроки по комнатам
         Map<String, List<LessonDto>> roomMap = lessons.stream()
-                .collect(Collectors.groupingBy(lesson -> lessonTime + "_" + lesson.roomDto().name()));
+                .collect(Collectors.groupingBy(lesson -> lesson.roomDto().name()));
 
         // Формируем список объектов WeekScheduleResponse
         List<WeekScheduleResponse> weekSchedule = new ArrayList<>();
@@ -73,37 +66,18 @@ public class AdminController {
         String lockDateTimeTo = lockLessonRequest.lockDateTimeTo();
         String roomName = lockLessonRequest.roomName();
         // 1. Проверка: есть ли уроки в указанное время
-        List<Lesson> existingLessons = lessonService.findLessonsBetween(
-                lockDateTimeFrom,lockDateTimeTo,roomName);
-
-        if (!existingLessons.isEmpty()) {
-            throw new IllegalStateException("В указанное время уже есть уроки");
-        }
-
-        // 2. Проверка: нет ли уже заглушки
-        List<LockedSlot> lockedSlots = lockedSlotRepo
-                .findLockedBetween(lockDateTimeFrom,lockDateTimeTo,roomName);
-
-        if (!lockedSlots.isEmpty()) {
-            throw new IllegalStateException("Уже стоит заглушка на это время");
-        }
-
-        // 3. Сохранение заглушки
-        LockedSlot slot = new LockedSlot();
-        slot.setLockedFrom(lockDateTimeFrom);
-        slot.setLockedTo(lockDateTimeTo);
-        slot.setRoomName(roomName);
-        lockedSlotRepo.save(slot);
+        lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomName);
 
         return ResponseEntity.ok("Lesson locked successfully for room ID " + roomName
                 + " from " + lockDateTimeFrom + " to " + lockDateTimeTo);
     }
+
     @PostMapping("/send-notification")
     public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notificationRequest) {
         int lessonId = notificationRequest.lessonId();
         Optional<Lesson> lesson = lessonService.findById(lessonId);
         // Поиск урока по lessonId через сервис
-        if (lesson == null) {
+        if (lesson.isEmpty()) {
             return ResponseEntity.status(404).body("Lesson not found");
         }
 
@@ -120,9 +94,9 @@ public class AdminController {
         );
         try {
             // Отправка email родителю, если указан email
-            if (lesson.get().getParent().getParentEmail() != null) {
+            if (lesson.get().getChildren().get(0).getParent().getParentEmail() != null) {
                 mailSenderService.send(
-                        lesson.get().getParent().getParentEmail(),
+                        lesson.get().getChildren().get(0).getParent().getParentEmail(),
                         "Напоминание о предстоящем уроке",
                         message
                 );
