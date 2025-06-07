@@ -2,6 +2,7 @@ package kidd.house.zerde.model.entity;
 
 import jakarta.persistence.*;
 import kidd.house.zerde.model.status.LessonStatus;
+import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
 import lombok.Data;
 
@@ -23,6 +24,8 @@ public class Lesson {
     private String lessonName;
     @Column(name = "lesson_day")
     private String lessonDay;
+    @Column(name = "lesson_time")
+    private String lessonTime;
     @Column(name = "lesson_type")
     @Enumerated(EnumType.STRING)
     private LessonType lessonType;
@@ -30,9 +33,13 @@ public class Lesson {
     @Enumerated(EnumType.STRING)
     private LessonStatus lessonStatus;
     @Column(name = "group_type")
-    private String groupType;
+    @Enumerated(EnumType.STRING)
+    private GroupType groupType;
     @OneToMany(mappedBy = "lesson",cascade = CascadeType.ALL)
     private List<Child> children = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "parents_id")
+    private Parent parent;
     @OneToOne
     @JoinColumn(name = "subjects_id")
     private Subject subject;
