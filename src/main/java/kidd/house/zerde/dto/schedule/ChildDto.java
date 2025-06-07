@@ -1,4 +1,6 @@
 package kidd.house.zerde.dto.schedule;
 
-public record ChildDto (String child){
+public record ChildDto (
+        String child,
+        ParentDto parentdto){
 }
