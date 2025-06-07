@@ -5,18 +5,11 @@ import kidd.house.zerde.dto.signupLesson.FreeLesson;
 import kidd.house.zerde.dto.signupLesson.LessonTypeDto;
 import kidd.house.zerde.dto.signupLesson.SignUpLessonResponse;
 import kidd.house.zerde.dto.signupLesson.SignupRequestDto;
-import kidd.house.zerde.model.entity.Child;
-import kidd.house.zerde.model.entity.Lesson;
-import kidd.house.zerde.model.entity.Parent;
-import kidd.house.zerde.model.entity.Room;
+import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.record.LessonDay;
 import kidd.house.zerde.model.status.LessonStatus;
-import kidd.house.zerde.model.type.GroupType;
 import kidd.house.zerde.model.type.LessonType;
-import kidd.house.zerde.repo.LessonRepo;
-import kidd.house.zerde.repo.LockedSlotRepo;
-import kidd.house.zerde.repo.ParentRepo;
-import kidd.house.zerde.repo.RoomRepo;
+import kidd.house.zerde.repo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SignupService {
+
     @Autowired
     private LessonRepo lessonRepo;
     @Autowired
@@ -34,11 +28,15 @@ public class SignupService {
     @Autowired
     private RoomRepo roomRepo;
     @Autowired
+    private MailSenderService mailSenderService;
     private EmailKafkaProducer emailKafkaProducer;  // Сервис для отправки email
     @Autowired
     private LockedSlotRepo lockedSlotRepo;
+    @Autowired
+    private LessonService lessonService;
+
     public String saveSignup(SignupRequestDto signupRequest, String status) {
-        // Валидация запроса
+        // === 1. Валидация ===
         if (signupRequest == null) {
             log.error("Пустой запрос на запись урока");
             throw new IllegalArgumentException("Запрос не может быть пустым.");
@@ -49,102 +47,73 @@ public class SignupService {
             throw new IllegalArgumentException("Пожалуйста, укажите данные родителя.");
         }
 
-        if (signupRequest.childName() == null || signupRequest.age() == 0) {
+        if (signupRequest.childName() == null || signupRequest.childAge() == 0) {
             log.warn("Данные ребенка неполные: {}", signupRequest);
             throw new IllegalArgumentException("Пожалуйста, укажите данные ребенка.");
         }
+
+        // === 2. Создание сущностей ===
         Parent parent = new Parent();
         parent.setParentName(signupRequest.parentName());
         parent.setParentPhone(signupRequest.parentPhone());
         parent.setParentEmail(signupRequest.parentEmail());
 
-
         Child child = new Child();
         child.setFirstName(signupRequest.childName());
-        child.setAge(signupRequest.age());
-        //Не нужен потому что cascade = CascadeType.ALL указан в model
-        //childRepo.save(child);
+        child.setAge(signupRequest.childAge());
+        child.setParent(parent);
+
         Room room = new Room();
         room.setName("202");
 
         Lesson lesson = new Lesson();
         lesson.setLessonName(signupRequest.lessonTypeDto().lessonName());
-        // !!! Копируем freeLessons в изменяемый список
+
         List<FreeLesson> freeLessons = new ArrayList<>(signupRequest.lessonTypeDto().freeLessons());
         if (freeLessons.isEmpty()) {
             log.error("Выберите свободное время!");
             throw new IllegalArgumentException("Свободное время для урока не указано.");
         }
 
-        lesson.setFrom(freeLessons.get(0).dateFrom());
-        lesson.setTo(freeLessons.get(0).dateTo());
+        lesson.setFrom(freeLessons.get(0).createTimeFrom());
+        lesson.setTo(freeLessons.get(0).createTimeTo());
         lesson.setRoom(room);
-        boolean isLocked = lockedSlotRepo.existsByRoomNameAndLockedFromLessThanAndLockedToGreaterThan(
-                room.getName(), lesson.getTo(), lesson.getFrom()
-        );
-
-        if (isLocked) {
-            throw new IllegalStateException("Время заблокировано, нельзя добавить урок");
-        }
-
         lesson.setLessonDay(signupRequest.lessonDay());
-        lesson.setLessonTime(signupRequest.lessonTime());
         lesson.setLessonType(LessonType.LOGOPED);
         lesson.setLessonStatus(LessonStatus.SCHEDULED);
-        lesson.setGroupType(GroupType.GROUP);
-
-        lesson.setParent(parent);
+        lesson.setGroupType(signupRequest.lessonTypeDto().groupType());
 
         child.setLesson(lesson);
         lesson.getChildren().add(child);
 
+        // === 3. Проверка, свободно ли время ===
+        if (signupRequest.lessonTypeDto().groupType().equals("GROUP")){
+            // Проверка: нет ли уже заглушки
+            List<LockedSlot> lockedSlots = lockedSlotRepo
+                    .findLockedBetween(
+                            lesson.getFrom(),
+                            lesson.getTo(),
+                            lesson.getRoom().getName()
+                    );
 
-        // Логика сохранения записи с начальным статусом "draft"
-
-        // Проверка, сохранился ли урок
-        boolean isLessonSaved = verifySignup(signupRequest);
-
-        if (isLessonSaved) {
-            parentRepo.save(parent);
-            roomRepo.save(room);
-            lessonRepo.save(lesson);
-            log.info("Сохранение записи с начальным статусом: " + status);
-            log.info("Урок успешно сохранен.");
-        } else {
-            log.error("Ошибка сохранения урока.");
+            if (!lockedSlots.isEmpty()) {
+                throw new IllegalStateException("Уже стоит индеведуальный урок на это время!");
+            }
+        } else if (signupRequest.lessonTypeDto().groupType().equals("INDIVIDUAL")) {
+            lessonService.lockLesson(lesson.getFrom(), lesson.getTo(), room.getName());
         }
-        return status;
-    }
-    public boolean verifySignup(SignupRequestDto signupRequest) {
-        Optional<Lesson> lessonOptional = lessonRepo.findByFromAndToAndLessonTime(
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateFrom(),
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateTo(),
-                signupRequest.lessonTime()
-        );
 
-        // Возвращаем true, если урок найден, иначе false
-        return lessonOptional != null;
-    }
 
-    public String updateStatus(SignupRequestDto signupRequest, String newStatus) {
-        Optional<Lesson> optionalLesson = lessonRepo.findByFromAndToAndLessonTime(
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateFrom(),
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateTo(),
-                signupRequest.lessonTime()
-        );
-
-        Lesson lesson = optionalLesson.orElseThrow(() ->
-                new IllegalStateException("Lesson не найден для указанных параметров")
-        );
-
-        lesson.setLessonStatus(LessonStatus.RESERVED);
+        // === 4. Сохранение сущностей ===
+        parentRepo.save(parent);
+        roomRepo.save(room);
         lessonRepo.save(lesson);
 
-        log.warn("Статус заявки обновлен на: " + newStatus);
-        return newStatus;
+        log.info("Сохранение записи с начальным статусом: {}", status);
+        log.info("Урок успешно сохранен.");
+
+        return status;
     }
-
-
     public void sendNotification(SignupRequestDto signupRequest) {
         // Логика отправки уведомления (в будущем можно интегрировать WhatsApp/Telegram API)
         Parent parent = parentRepo.findByParentPhoneAndParentEmail(
@@ -157,8 +126,8 @@ public class SignupService {
                 "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
                 signupRequest.childName(),
                 "Gregory",
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateFrom(),
-                signupRequest.lessonTypeDto().freeLessons().get(0).dateTo(),
+                signupRequest.lessonTypeDto().freeLessons().get(0).createTimeFrom(),
+                signupRequest.lessonTypeDto().freeLessons().get(0).createTimeTo(),
                 "202"
         );
         // Отправка email родителю, если указан email
@@ -177,7 +146,7 @@ public class SignupService {
 
         return lessons.stream()
                 .collect(Collectors.groupingBy(
-                        lesson -> lesson.getLessonDay() + "_" + lesson.getLessonName() + "_" + lesson.getLessonTime()
+                        lesson -> lesson.getLessonDay() + "_" + lesson.getLessonName()
                 ))
                 .entrySet()
                 .stream()
@@ -192,12 +161,12 @@ public class SignupService {
                             .toList();
 
                     LessonDay lessonDay = new LessonDay(
-                            firstLesson.getLessonDay(),
-                            firstLesson.getLessonTime()
+                            firstLesson.getLessonDay()
                     );
 
                     LessonTypeDto lessonTypeDto = new LessonTypeDto(
                             firstLesson.getLessonName(),
+                            "GROUP",
                             freeLessons
                     );
 
