@@ -1,12 +1,13 @@
 package kidd.house.zerde.controller;
 
+import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.*;
 import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
-import kidd.house.zerde.model.entity.Lesson;
+import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ public class AdminController {
     private final ParentService parentService;
     private final LessonMapper lessonMapper;
     private final EmailKafkaProducer emailKafkaProducer;
+    private final AdminService adminService;
     @GetMapping("/first-visit-schedule")
     public ResponseEntity<List<LessonDto>> schedule(){
         // Получаем список уроков из сервиса
@@ -120,5 +122,39 @@ public class AdminController {
         }
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
+    }
+//    @GetMapping("/lessons")
+//    public ResponseEntity<List<Lesson>> getAllLessons(){
+//       return adminService.getLessons();
+//    }
+//    @GetMapping("/lessons/:lessonId")
+//    public ResponseEntity<List<Child>> getChildList(){
+//        return adminService.getChildList();
+//    }
+    @PostMapping("/create-teacher")
+    public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
+        adminService.createNewTeacher(createTeacherDto);
+        return ResponseEntity.ok("Teacher successfully created!");
+    }
+    @PostMapping("/create-subject")
+    public ResponseEntity<String> createSubject(@RequestBody CreateSubjectDto createSubjectDto){
+        adminService.createNewSubject(createSubjectDto);
+        return ResponseEntity.ok("Subject successfully created!");
+    }
+    @PostMapping("/create-room")
+    public ResponseEntity<String> createRoom(@RequestBody CreateRoomDto createRoomDto){
+        adminService.createNewRoom(createRoomDto);
+        return ResponseEntity.ok("Room successfully created!");
+    }
+    @PostMapping("/create-group")
+    public ResponseEntity<String> createRoom(@RequestBody CreateGroupDto createGroupDto){
+        adminService.createNewGroup(createGroupDto);
+        return ResponseEntity.ok("Group successfully created!");
+    }
+    @PostMapping("/create-lesson")
+    public ResponseEntity<String> createLesson(@RequestBody CreateLessonDto createLessonDto){
+        adminService.createNewLesson(createLessonDto);
+        adminService.sendNotification(createLessonDto);
+        return ResponseEntity.ok("Lesson successfully created!");
     }
 }

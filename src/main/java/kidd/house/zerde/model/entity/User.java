@@ -20,6 +20,10 @@ public class User implements UserDetails {
     private int id;
     @Column(name = "name")
     private String name;
+    @Column(name = "surname")
+    private String surName;
+    @Column(name = "lastname")
+    private String lastName;
     @Column(name = "password")
     private String password;
     @Column(name = "email")
