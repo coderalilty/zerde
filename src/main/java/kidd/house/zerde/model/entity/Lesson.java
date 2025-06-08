@@ -42,4 +42,7 @@ public class Lesson {
     @OneToOne
     @JoinColumn(name = "users_id")
     private User user;
+    @OneToOne
+    @JoinColumn(name = "groups_id")
+    private Group group;
 }

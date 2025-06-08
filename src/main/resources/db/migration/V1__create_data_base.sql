@@ -109,11 +109,17 @@ CREATE TABLE IF NOT EXISTS `teacher_subjects` (
 --
 -- Структура таблицы `users`
 --
-
 CREATE TABLE IF NOT EXISTS `users` (
                                        `id` int auto_increment primary key,
                                        `authorities` enum('ADMIN','TEACHER') DEFAULT NULL,
                                        `email` varchar(255) DEFAULT NULL,
                                        `name` varchar(255) DEFAULT NULL,
+                                       `surname` varchar(255) DEFAULT NULL,
+                                       `lastname` varchar(255) DEFAULT NULL,
                                        `password` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `groups` (
+                                       `id` int auto_increment primary key,
+                                       `name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
