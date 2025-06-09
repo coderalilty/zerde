@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `lessons` (
                                          `lesson_day` varchar(255) DEFAULT NULL,
                                          `group_type` varchar(255) DEFAULT NULL,
                                          `lesson_status` enum('CANCELLED','COMPLETED','RESERVED','SCHEDULED') DEFAULT NULL,
-                                         `lesson_type` enum('AUTISM','DIKTOLOG','LOGOPED','PERMANENT','TRIAL') DEFAULT NULL,
+                                         `lesson_type` enum('PERMANENT','TRIAL') DEFAULT NULL,
                                          `update_date` varchar(255) DEFAULT NULL,
                                          `rooms_id` int DEFAULT NULL,
                                          `subjects_id` int DEFAULT NULL,

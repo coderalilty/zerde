@@ -79,7 +79,7 @@ public class SignupService {
         lesson.setTo(freeLessons.get(0).createTimeTo());
         lesson.setRoom(room);
         lesson.setLessonDay(signupRequest.lessonDay());
-        lesson.setLessonType(LessonType.LOGOPED);
+        lesson.setLessonType(LessonType.TRIAL);
         lesson.setLessonStatus(LessonStatus.SCHEDULED);
         lesson.setGroupType(signupRequest.lessonTypeDto().groupType());
 
@@ -145,6 +145,7 @@ public class SignupService {
         List<Lesson> lessons = lessonRepo.findAll();
 
         return lessons.stream()
+                .filter(lesson -> lesson.getLessonType() == LessonType.TRIAL)
                 .collect(Collectors.groupingBy(
                         lesson -> lesson.getLessonDay() + "_" + lesson.getLessonName()
                 ))
