@@ -149,7 +149,7 @@ public class AdminController {
         return ResponseEntity.ok("Room successfully created!");
     }
     @PostMapping("/create-group")
-    public ResponseEntity<String> createRoom(@RequestBody CreateGroupDto createGroupDto){
+    public ResponseEntity<String> createGroup(@RequestBody CreateGroupDto createGroupDto){
         adminService.createNewGroup(createGroupDto);
         return ResponseEntity.ok("Group successfully created!");
     }
