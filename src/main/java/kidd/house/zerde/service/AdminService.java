@@ -5,6 +5,7 @@ import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
+import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class AdminService {
     private EmailKafkaProducer emailKafkaProducer;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ChildRepo childRepo;
     public void createNewTeacher(CreateTeacherDto createTeacherDto) {
         User user = new User();
         user.setName(createTeacherDto.name());
@@ -100,6 +103,7 @@ public class AdminService {
         lesson.setGroupType(createLessonDto.groupType());
         lesson.setGroup(groupRepo.findById(createLessonDto.groupId()));
         lesson.setLessonStatus(LessonStatus.SCHEDULED);
+        lesson.setLessonType(LessonType.PERMANENT);
         lesson.setSubject(subjectRepo.findById(createLessonDto.subjectId()));
         lesson.setRoom(roomRepo.findById(createLessonDto.roomId()));
         lesson.setUser(userRepo.findById(createLessonDto.teacherId()));
@@ -148,5 +152,44 @@ public class AdminService {
             ));
         }
         System.out.println("Отправка уведомления для заявки: " + createLessonDto.childName());
+    }
+    public List<LessonDtos> getLessons(){
+        List<Lesson> lessons = lessonRepo.findAll();
+        return toDtoListLesson(lessons);
+    }
+    private List<LessonDtos> toDtoListLesson(List<Lesson> lessons) {
+        return lessons.stream()
+                .filter(lesson -> lesson.getLessonType() == LessonType.PERMANENT)
+                .map(this::toDto)
+                .toList();
+    }
+    private LessonDtos toDto(Lesson lesson) {
+        return new LessonDtos(
+                lesson.getLessonName(),
+                lesson.getFrom(),
+                lesson.getTo(),
+                lesson.getLessonDay(),
+                lesson.getGroupType(),
+                lesson.getGroup().getName(),
+                lesson.getRoom().getName(),
+                lesson.getSubject().getName()
+        );
+    }
+    public List<ChildDtos> getChildrenByLessonId(Long lessonId){
+        List<Child> children = childRepo.findByLessonId(lessonId);
+        return toDtoListChild(children);
+    }
+    private List<ChildDtos> toDtoListChild(List<Child> children) {
+        return children.stream()
+                .map(this::toDtoChild)
+                .toList();
+    }
+    private ChildDtos toDtoChild(Child child) {
+        return new ChildDtos(
+                child.getFirstName(),
+                child.getMiddleName(),
+                child.getLastName(),
+                child.getAge()
+        );
     }
 }

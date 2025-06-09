@@ -123,14 +123,16 @@ public class AdminController {
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
-//    @GetMapping("/lessons")
-//    public ResponseEntity<List<Lesson>> getAllLessons(){
-//       return adminService.getLessons();
-//    }
-//    @GetMapping("/lessons/:lessonId")
-//    public ResponseEntity<List<Child>> getChildList(){
-//        return adminService.getChildList();
-//    }
+    @GetMapping("/lessons")
+    public ResponseEntity<List<LessonDtos>> getAllLessons(){
+        List<LessonDtos> lessons = adminService.getLessons();
+       return ResponseEntity.ok(lessons);
+    }
+    @GetMapping("/lessons/{lessonId}/children")
+    public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Long lessonId){
+        List<ChildDtos> children = adminService.getChildrenByLessonId(lessonId);
+        return ResponseEntity.ok(children);
+    }
     @PostMapping("/create-teacher")
     public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
         adminService.createNewTeacher(createTeacherDto);
