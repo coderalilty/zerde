@@ -49,9 +49,10 @@ public class AdminService {
         user.setEmail(createTeacherDto.email());
 
         String rawPassword = randomAlphanumeric(8);
+        user.setPasswordTemporary(true);
 
         String message = String.format(
-                "Уважаемый(ая) %s, для вас создан аккаунт преподавателя, с email %s и временным паролем %s.",
+                "Уважаемый(ая) %s, для вас создан аккаунт преподавателя, с email %s и временным паролем %s",
                 user.getName(),
                 user.getEmail(),
                 rawPassword
