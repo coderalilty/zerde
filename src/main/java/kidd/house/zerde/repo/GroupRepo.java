@@ -1,9 +1,10 @@
 package kidd.house.zerde.repo;
 
-import kidd.house.zerde.model.entity.Diagnosis;
+import kidd.house.zerde.model.entity.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DiagnosisRepo extends JpaRepository<Diagnosis,Long> {
+public interface GroupRepo extends JpaRepository<Group,Integer> {
+    Group findById(int groupId);
 }

@@ -29,7 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         user.setEmail(signUpRequest.email());
         user.setName(signUpRequest.name());
-        user.setAuthorities(Authorities.TEACHER);
+        user.setAuthorities(Authorities.USER);
         user.setPassword(passwordEncoder.encode(signUpRequest.password()));
 
         return userRepo.save(user);
@@ -39,6 +39,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 signInRequest.password()));
         var user = userRepo.findByEmail(signInRequest.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+        if (user.isPasswordTemporary()){
+            throw new IllegalArgumentException("Необходимо сменить временный пароль");
+        }
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefrechToken(new HashMap<>(), user);
 

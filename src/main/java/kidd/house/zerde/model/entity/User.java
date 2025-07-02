@@ -20,6 +20,10 @@ public class User implements UserDetails {
     private int id;
     @Column(name = "name")
     private String name;
+    @Column(name = "surname")
+    private String surName;
+    @Column(name = "lastname")
+    private String lastName;
     @Column(name = "password")
     private String password;
     @Column(name = "email")
@@ -27,6 +31,8 @@ public class User implements UserDetails {
     private String email;
     @Enumerated(value = EnumType.STRING)
     private Authorities authorities;
+    @Column(name = "password_temporary")
+    private boolean passwordTemporary;
     @ManyToMany
     @JoinTable(name = "teacher_subjects", joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "subjects_id"))
