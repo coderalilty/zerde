@@ -9,6 +9,7 @@ import kidd.house.zerde.dto.registration.SignUpRequest;
 import kidd.house.zerde.service.AuthenticationService;
 import kidd.house.zerde.service.ChangeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,21 +25,19 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest){
         authenticationService.signUp(signUpRequest);
-        return ResponseEntity.ok("Аккаунт успешно сохранен!");
+        return new ResponseEntity<>("Аккаунт успешно сохранен!", HttpStatus.CREATED);
     }
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponce> signIn(@RequestBody SignInRequest signInRequest){
-        return ResponseEntity.ok(authenticationService.signIn(signInRequest));
+        return new ResponseEntity<>(authenticationService.signIn(signInRequest), HttpStatus.FOUND);
     }
     @PostMapping("/refresh")
     public ResponseEntity<JwtAuthenticationResponce> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
-        return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
+        return new ResponseEntity<>(authenticationService.refreshToken(refreshTokenRequest), HttpStatus.CONTINUE);
     }
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(
-            @RequestBody ChangePasswordDto dto
-    ) {
-        changeService.changePassword(dto.email(), dto);
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto dto) {
+        changeService.changePassword(dto);
         return ResponseEntity.ok("Пароль успешно изменен");
     }
 }

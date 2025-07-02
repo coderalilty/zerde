@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class ChangeService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
-    public void changePassword(String email, ChangePasswordDto dto) {
-        User user = userRepo.findByEmail(email)
+    public void changePassword(ChangePasswordDto dto) {
+        User user = userRepo.findByEmail(dto.email())
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
         // Проверка: временный ли пароль

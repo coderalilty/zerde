@@ -3,6 +3,7 @@ package kidd.house.zerde.controller;
 import kidd.house.zerde.dto.signupLesson.*;
 import kidd.house.zerde.service.SignupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,6 @@ public class SignupController {
 
             signupService.sendNotification(signupRequest);
 
-        return ResponseEntity.ok(new SignupResponse(status, "Запись успешно обработана"));
+        return new ResponseEntity<>(new SignupResponse(status, "Запись успешно обработана"), HttpStatus.CREATED);
     }
 }

@@ -68,8 +68,8 @@ public class AdminController {
         // 1. Проверка: есть ли уроки в указанное время
         lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomName);
 
-        return ResponseEntity.ok("Lesson locked successfully for room ID " + roomName
-                + " from " + lockDateTimeFrom + " to " + lockDateTimeTo);
+        return new ResponseEntity<>("Lesson locked successfully for room ID " + roomName
+                + " from " + lockDateTimeFrom + " to " + lockDateTimeTo, HttpStatus.LOCKED);
     }
 
     @PostMapping("/send-notification")
@@ -136,27 +136,27 @@ public class AdminController {
     @PostMapping("/create-teacher")
     public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
         adminService.createNewTeacher(createTeacherDto);
-        return ResponseEntity.ok("Teacher successfully created!");
+        return new ResponseEntity<>("Teacher successfully created!",HttpStatus.CREATED);
     }
     @PostMapping("/create-subject")
     public ResponseEntity<String> createSubject(@RequestBody CreateSubjectDto createSubjectDto){
         adminService.createNewSubject(createSubjectDto);
-        return ResponseEntity.ok("Subject successfully created!");
+        return new ResponseEntity<>("Subject successfully created!",HttpStatus.CREATED);
     }
     @PostMapping("/create-room")
     public ResponseEntity<String> createRoom(@RequestBody CreateRoomDto createRoomDto){
         adminService.createNewRoom(createRoomDto);
-        return ResponseEntity.ok("Room successfully created!");
+        return new ResponseEntity<>("Room successfully created!",HttpStatus.CREATED);
     }
     @PostMapping("/create-group")
     public ResponseEntity<String> createGroup(@RequestBody CreateGroupDto createGroupDto){
         adminService.createNewGroup(createGroupDto);
-        return ResponseEntity.ok("Group successfully created!");
+        return new ResponseEntity<>("Group successfully created!",HttpStatus.CREATED);
     }
     @PostMapping("/create-lesson")
     public ResponseEntity<String> createLesson(@RequestBody CreateLessonDto createLessonDto){
         adminService.createNewLesson(createLessonDto);
         adminService.sendNotification(createLessonDto);
-        return ResponseEntity.ok("Lesson successfully created!");
+        return new ResponseEntity<>("Lesson successfully created!",HttpStatus.CREATED);
     }
 }
