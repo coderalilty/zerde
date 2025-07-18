@@ -1,6 +1,5 @@
 package kidd.house.zerde.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kidd.house.zerde.dto.signupLesson.FreeLesson;
 import kidd.house.zerde.dto.signupLesson.LessonTypeDto;
@@ -25,8 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @ExtendWith(MockitoExtension.class)
 class SignupControllerTest {
@@ -48,33 +45,19 @@ class SignupControllerTest {
 
     @Test
     void signUpLesson_ReturnsLessonList() throws Exception {
-//        // prepare test data
-//        List<SignUpLessonResponse> lessonResponses = List.of(
-//                new SignUpLessonResponse(
-//                        new LessonDay("2025-06-13"),
-//                        new LessonTypeDto(
-//                                "буква B",
-//                                "GROUP",
-//                                List.of(new FreeLesson("10:00", "10:30"))
-//                        )
-//                )
-//        );
-//
-//        // define mock behavior
-//        Mockito.when(signupService.getLessons()).thenReturn(lessonResponses);
-//
-//        // perform request and assert
-//        mockMvc.perform(get("/api/v2/signup-lesson"))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].lessonDay.day").value("2025-06-13"))
-//                .andExpect(jsonPath("$[0].lessonTypeDto.name").value("буква B"))
-//                .andExpect(jsonPath("$[0].lessonTypeDto.groupType").value("GROUP"))
-//                .andExpect(jsonPath("$[0].lessonTypeDto.freeLessons[0].start").value("10:00"))
-//                .andExpect(jsonPath("$[0].lessonTypeDto.freeLessons[0].end").value("10:30"));
-//
-//        // verify service call
-//        Mockito.verify(signupService, times(1)).getLessons();
+        SignUpLessonResponse lesson = new SignUpLessonResponse(
+                        new LessonDay("2025-06-13"),
+                        new LessonTypeDto(
+                                "буква B",
+                                "GROUP",
+                                List.of(new FreeLesson("10:00", "10:30"))
+                        )
+                );
+        List<SignUpLessonResponse> allLesson = List.of(lesson);
+        Mockito.when(signupService.getLessons()).thenReturn(allLesson);
+        mockMvc.perform(get("/api/v2/signup-lesson")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
