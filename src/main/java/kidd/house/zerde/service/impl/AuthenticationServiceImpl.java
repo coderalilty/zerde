@@ -39,6 +39,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 signInRequest.password()));
         var user = userRepo.findByEmail(signInRequest.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+        if (user.isPasswordTemporary()){
+            throw new IllegalArgumentException("Необходимо сменить временный пароль");
+        }
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefrechToken(new HashMap<>(), user);
 
