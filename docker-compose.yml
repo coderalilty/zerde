@@ -9,7 +9,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_CONFIG_LOCATION: file:/app/application.properties
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_MAIL_USERNAME: elzat7@ya.ru
