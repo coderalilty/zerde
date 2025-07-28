@@ -1,5 +1,4 @@
-version: '3.8'
-
+#version: '3.8'
 services:
   app:
     build:
@@ -19,21 +18,13 @@ services:
       TELEGRAM_BOT_TOKEN: 7569987591:AAHLdh0f7XBo-1GSoRi7aCII5iInZt5P2Xw
     depends_on:
       - db
-      - kafka
     volumes:
       - ./src/main/resources/application.properties:/app/application.properties
-    networks:
-      - backend
     restart: unless-stopped
 
   db:
     image: mysql:8.0.41
     container_name: mysql-8.0
-    command: >
-      --max_connections=50 
-      --innodb_buffer_pool_size=128M 
-      --default-authentication-plugin=mysql_native_password
-      --bind-address=0.0.0.0
     ports:
       - "3306:3306"
     environment:
@@ -42,10 +33,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - backend
     restart: unless-stopped
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -54,9 +42,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-      KAFKA_HEAP_OPTS: "-Xmx128M -Xms128M"
-    networks:
-      - backend
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -68,17 +53,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
-    networks:
-      - backend
-
 volumes:
   db_data:
-
-networks:
-  backend:
-    driver: bridge
