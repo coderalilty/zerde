@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `teacher_subjects` (
 --
 CREATE TABLE IF NOT EXISTS `users` (
                                        `id` int auto_increment primary key,
-                                       `authorities` enum('ADMIN','TEACHER') DEFAULT NULL,
+                                       `authorities` enum('ADMIN','TEACHER','USER') DEFAULT NULL,
                                        `email` varchar(255) DEFAULT NULL,
                                        `name` varchar(255) DEFAULT NULL,
                                        `surname` varchar(255) DEFAULT NULL,

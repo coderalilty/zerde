@@ -12,7 +12,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_MAIL_USERNAME: elzat7@ya.ru
-      SPRING_MAIL_PASSWORD: uutkrdjiectrgnpj
+      SPRING_MAIL_PASSWORD: xbjkrwlljffeifdo
       TELEGRAM_BOT_USERNAME: zerde_kidd_house_bot
       TELEGRAM_BOT_TOKEN: 7569987591:AAHLdh0f7XBo-1GSoRi7aCII5iInZt5P2Xw
     depends_on:
