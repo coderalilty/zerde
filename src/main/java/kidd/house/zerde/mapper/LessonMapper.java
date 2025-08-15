@@ -14,17 +14,9 @@ public class LessonMapper {
     @Autowired
     private LessonRepo lessonRepo;
     public LessonDto toDto(Lesson lesson) {
-        //User teacher = lesson.getUser();
-        //Room room = lesson.getRoom();
-        Parent parent = lesson.getParent();
 
         TeacherDto teacherDto = new TeacherDto("Gregory");
         RoomDto roomDto = new RoomDto("202");
-        ParentDto parentDto = new ParentDto(
-                parent.getParentName(),
-                parent.getParentPhone(),
-                parent.getParentEmail());
-
 
         List<ChildDto> childDto = getChildFirstName(lesson);
 
@@ -33,24 +25,26 @@ public class LessonMapper {
                 childDto,
                 lesson.getFrom(),
                 lesson.getTo(),
-                roomDto,
-                parentDto
+                roomDto
         );
     }
 
+
     public List<ChildDto> getChildFirstName(Lesson lesson) {
         // 👇 Преобразуем всех детей в ChildDto
-        List<ChildDto> childDto = lesson.getChildren().stream()
+        return lesson.getChildren().stream()
                 .map(child -> new ChildDto(
-                        child.getFirstName()
+                        child.getFirstName(),
+                        new ParentDto(
+                                child.getParent().getParentName(),
+                                child.getParent().getParentPhone(),
+                                child.getParent().getParentEmail())
                 ))
                 .toList();
-        return childDto;
     }
     public String getLessonTime(){
         List<Lesson> lesson = lessonRepo.findAll();
-        String lessonTimeDto = lesson.get(0).getLessonTime();
-        return lessonTimeDto;
+        return lesson.get(0).getLessonDay();
     }
 
     public List<LessonDto> toDtoList(List<Lesson> lessons) {
