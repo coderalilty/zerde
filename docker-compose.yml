@@ -2,8 +2,8 @@
 services:
   # jenkins
   jenkins:
-    container_name: deployment_jenkins
-    image: denitiawan/jenkins-with-docker:1.0
+    container_name: jenkins
+    image: jenkins/jenkins:lts
     environment:
 
       APP_PORT: 12345
@@ -16,6 +16,7 @@ services:
 
     ports:
       - '9999:8080'
+      - '50000:50000'
     expose:
       - '9999'
     volumes:
