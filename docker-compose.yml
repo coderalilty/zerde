@@ -1,33 +1,5 @@
-#version: '3.8'
+version: '3.8'
 services:
-  # jenkins
-  jenkins:
-    container_name: jenkins
-    image: jenkins/jenkins:lts
-    environment:
-
-      APP_PORT: 12345
-      APP_DB_HOST: deployment_mysql
-      APP_DB_PORT: 3366
-      APP_DB_NAME: db_spring
-      APP_DB_USER: user
-      APP_DB_PASSWORD: password
-
-
-    ports:
-      - '9999:8080'
-      - '50000:50000'
-    volumes:
-      - ./jenkins_home:/var/jenkins_home
-       - /var/run/docker.sock:/var/run/docker.sock
-
-    networks:
-      - network
-
-    mem_limit: 512m
-    mem_reservation: 128M
-    cpus: 0.5
-
   app:
     build:
       context: .
@@ -60,6 +32,7 @@ services:
       - db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -81,9 +54,10 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
 networks:
-  network:
+  default:
     driver: bridge
+
 volumes:
   db_data:
-  jenkins:
