@@ -1,5 +1,34 @@
 #version: '3.8'
 services:
+  # jenkins
+  jenkins:
+    container_name: deployment_jenkins
+    image: denitiawan/jenkins-with-docker:1.0
+    environment:
+
+      APP_PORT: 12345
+      APP_DB_HOST: deployment_mysql
+      APP_DB_PORT: 3366
+      APP_DB_NAME: db_spring
+      APP_DB_USER: user
+      APP_DB_PASSWORD: password
+
+
+    ports:
+      - '9999:8080'
+    expose:
+      - '9999'
+    volumes:
+      - jenkins:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+      - network
+
+    mem_limit: 512m
+    mem_reservation: 128M
+    cpus: 0.5
+
   app:
     build:
       context: .
@@ -56,3 +85,4 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 volumes:
   db_data:
+  jenkins:
