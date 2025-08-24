@@ -8,18 +8,16 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_CONFIG_LOCATION: file:/app/application.properties
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zerde-kidd-house
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_MAIL_USERNAME: elzat7@ya.ru
-      SPRING_MAIL_PASSWORD: uutkrdjiectrgnpj
+      SPRING_MAIL_PASSWORD: xbjkrwlljffeifdo
       TELEGRAM_BOT_USERNAME: zerde_kidd_house_bot
       TELEGRAM_BOT_TOKEN: 7569987591:AAHLdh0f7XBo-1GSoRi7aCII5iInZt5P2Xw
     depends_on:
       - db
-    volumes:
-      - ./src/main/resources/application.properties:/app/application.properties
+      - kafka
     restart: unless-stopped
 
   db:
@@ -32,7 +30,6 @@ services:
       MYSQL_DATABASE: zerde-kidd-house
     volumes:
       - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
