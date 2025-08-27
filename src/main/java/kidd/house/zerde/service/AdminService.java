@@ -1,7 +1,6 @@
 package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.*;
-import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.apache.commons.lang3.RandomStringUtils.*;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class AdminService {
     @Autowired
     private LessonService lessonService;
     @Autowired
-    private EmailKafkaProducer emailKafkaProducer;
+    private MailSenderService mailSenderService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -57,11 +56,11 @@ public class AdminService {
                 user.getEmail(),
                 rawPassword
         );
-        emailKafkaProducer.sendEmail(new EmailMessageDto(
+        mailSenderService.send(
                 user.getEmail(),
                 "Напоминание о создании аккаунта",
                 message
-        ));
+        );
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setAuthorities(Authorities.TEACHER);
         userRepo.save(user);
@@ -146,11 +145,11 @@ public class AdminService {
         );
         // Отправка email родителю, если указан email
         if (parent.getParentEmail() != null) {
-            emailKafkaProducer.sendEmail(new EmailMessageDto(
+            mailSenderService.send(
                     parent.getParentEmail(),
                     "Напоминание о предстоящем уроке",
                     message
-            ));
+            );
         }
         System.out.println("Отправка уведомления для заявки: " + createLessonDto.childName());
     }

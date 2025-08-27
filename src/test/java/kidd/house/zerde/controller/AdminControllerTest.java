@@ -3,9 +3,7 @@ package kidd.house.zerde.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
-import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.service.AdminService;
-import kidd.house.zerde.service.EmailKafkaProducer;
 import kidd.house.zerde.service.LessonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,10 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminControllerTest {
     @Mock
     private LessonService lessonService;
-    @Mock
-    private LessonMapper lessonMapper;
-    @Mock
-    private EmailKafkaProducer emailKafkaProducer;
     @Mock
     private AdminService adminService;
     @InjectMocks
@@ -63,7 +57,7 @@ class AdminControllerTest {
     }
 
     @Test//
-    void sendNotification() throws Exception {
+    void sendNotification() {
 //        Parent parent = new Parent();
 //        parent.setParentName("Gregory");
 //        parent.setParentPhone("+77788136226");
