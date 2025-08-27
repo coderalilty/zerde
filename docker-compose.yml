@@ -29,6 +29,7 @@ services:
       MYSQL_DATABASE: zerde-kidd-house
     volumes:
       - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
 volumes:
   db_data:
