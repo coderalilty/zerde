@@ -1,6 +1,5 @@
 package kidd.house.zerde.service;
 
-import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
 import kidd.house.zerde.dto.signupLesson.FreeLesson;
 import kidd.house.zerde.dto.signupLesson.LessonTypeDto;
 import kidd.house.zerde.dto.signupLesson.SignUpLessonResponse;
@@ -17,8 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -30,7 +30,7 @@ public class SignupService {
     @Autowired
     private RoomRepo roomRepo;
     @Autowired
-    private EmailKafkaProducer emailKafkaProducer;  // Сервис для отправки email
+    private MailSenderService mailSenderService;  // Сервис для отправки email
     @Autowired
     private LockedSlotRepo lockedSlotRepo;
     @Autowired
@@ -132,11 +132,11 @@ public class SignupService {
         );
         // Отправка email родителю, если указан email
         if (parent.getParentEmail() != null) {
-            emailKafkaProducer.sendEmail(new EmailMessageDto(
+            mailSenderService.send(
                     parent.getParentEmail(),
                     "Напоминание о предстоящем уроке",
                     message
-                    ));
+                    );
         }
         System.out.println("Отправка уведомления для заявки: " + signupRequest.childName());
     }

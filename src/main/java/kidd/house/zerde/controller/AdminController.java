@@ -2,19 +2,23 @@ package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
-import kidd.house.zerde.dto.schedule.*;
-import kidd.house.zerde.dto.sendNotification.EmailMessageDto;
+import kidd.house.zerde.dto.schedule.ChildDto;
+import kidd.house.zerde.dto.schedule.LessonDto;
+import kidd.house.zerde.dto.schedule.RoomDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
-import kidd.house.zerde.model.entity.*;
+import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,10 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminController {
     private final LessonService lessonService;  // Сервис для работы с уроками
-    private final TelegramService telegramService;
-    private final ParentService parentService;
     private final LessonMapper lessonMapper;
-    private final EmailKafkaProducer emailKafkaProducer;
+    private final MailSenderService mailSenderService;
     private final AdminService adminService;
     @GetMapping("/first-visit-schedule")
     public ResponseEntity<List<LessonDto>> schedule(){
@@ -95,11 +97,11 @@ public class AdminController {
         try {
             // Отправка email родителю, если указан email
             if (lesson.get().getChildren().get(0).getParent().getParentEmail() != null) {
-                emailKafkaProducer.sendEmail(new EmailMessageDto(
+                mailSenderService.send(
                         lesson.get().getChildren().get(0).getParent().getParentEmail(),
                         "Напоминание о предстоящем уроке",
                         message
-                ));
+                );
             }
             System.out.println("Формируемое сообщение: " + message);
             // Отправка уведомления в Telegram, если указан номер телефона
