@@ -29,11 +29,11 @@ public class AuthenticationController {
     }
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponce> signIn(@RequestBody SignInRequest signInRequest){
-        return new ResponseEntity<>(authenticationService.signIn(signInRequest), HttpStatus.FOUND);
+        return new ResponseEntity<>(authenticationService.signIn(signInRequest), HttpStatus.OK);
     }
     @PostMapping("/refresh")
     public ResponseEntity<JwtAuthenticationResponce> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
-        return new ResponseEntity<>(authenticationService.refreshToken(refreshTokenRequest), HttpStatus.CONTINUE);
+        return new ResponseEntity<>(authenticationService.refreshToken(refreshTokenRequest), HttpStatus.OK);
     }
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto dto) {

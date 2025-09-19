@@ -56,7 +56,7 @@ class AuthenticationControllerTest {
         mockMvc.perform(post("/api/v1/auth/signin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson))
-                .andExpect(status().isFound());
+                .andExpect(status().isOk());
         verify(authenticationService, times(1)).signIn(user);
     }
 
@@ -67,7 +67,7 @@ class AuthenticationControllerTest {
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
-                .andExpect(status().isContinue());
+                .andExpect(status().isOk());
         verify(authenticationService, times(1)).refreshToken(refresh);
     }
 
