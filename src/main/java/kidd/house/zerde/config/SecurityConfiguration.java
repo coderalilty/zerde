@@ -79,7 +79,12 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Разрешаем все домены, лучше потом ограничить
+//        configuration.setAllowedOrigins(List.of("*")); // Разрешаем все домены, лучше потом ограничить
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",     // фронт из IDE
+                "http://127.0.0.1:3000",    // фронт из Docker, иногда использует этот адрес
+                "http://192.168.1.110:3000" // 🔥 твой реальный IP, если фронт заходит по сети
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*")); // Разрешаем все заголовки
         configuration.setAllowCredentials(true); // если нужно передавать куки/авторизацию
