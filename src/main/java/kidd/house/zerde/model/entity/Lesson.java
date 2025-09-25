@@ -43,6 +43,6 @@ public class Lesson {
     @JoinColumn(name = "users_id")
     private User user;
     @OneToOne
-    @JoinColumn(name = "groups_id")
+    @JoinColumn(name = "app_groups_id")
     private Group group;
 }

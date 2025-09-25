@@ -101,12 +101,16 @@ public class AdminService {
         lesson.setFrom(createLessonDto.createLessonFrom());
         lesson.setTo(createLessonDto.createLessonTo());
         lesson.setGroupType(createLessonDto.groupType());
-        lesson.setGroup(groupRepo.findById(createLessonDto.groupId()));
         lesson.setLessonStatus(LessonStatus.SCHEDULED);
         lesson.setLessonType(LessonType.PERMANENT);
-        lesson.setSubject(subjectRepo.findById(createLessonDto.subjectId()));
-        lesson.setRoom(roomRepo.findById(createLessonDto.roomId()));
-        lesson.setUser(userRepo.findById(createLessonDto.teacherId()));
+        Group group = groupRepo.findById(createLessonDto.groupId());
+        lesson.setGroup(group);
+        Subject subject = subjectRepo.findById(createLessonDto.subjectId());
+        lesson.setSubject(subject);
+        Room room = roomRepo.findById(createLessonDto.roomId());
+        lesson.setRoom(room);
+        User teacher = userRepo.findById(createLessonDto.teacherId());
+        lesson.setUser(teacher);
 
         child.setLesson(lesson);
         lesson.getChildren().add(child);
@@ -190,6 +194,87 @@ public class AdminService {
                 child.getMiddleName(),
                 child.getLastName(),
                 child.getAge()
+        );
+    }
+
+    public List<ListRoomsDto> getRooms() {
+        List<Room> rooms = roomRepo.findAll();
+        return rooms.stream()
+                .map(this::toDtoRoom)
+                .toList();
+    }
+
+    private ListRoomsDto toDtoRoom(Room room) {
+        return new ListRoomsDto(
+                room.getId(),
+                room.getName()
+        );
+    }
+
+    public List<ListTeachersDto> getTeachers() {
+        List<User> teachers = userRepo.findAll();
+        return teachers.stream()
+                .filter(user -> user.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("TEACHER")))
+                .map(this::toDtoTeachers)
+                .toList();
+    }
+
+    private ListTeachersDto toDtoTeachers(User user) {
+        return new ListTeachersDto(
+                user.getName(),
+                user.getSurName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getAuthorities(),
+                user.isPasswordTemporary(),
+                user.getSubjects()
+        );
+    }
+
+    public List<ListSubjectsDto> getSubjects() {
+        List<Subject> subjects = subjectRepo.findAll();
+        return subjects.stream()
+                .map(this::toDtoSubject)
+                .toList();
+    }
+    private ListSubjectsDto toDtoSubject(Subject subject) {
+        return new ListSubjectsDto(
+                subject.getId(),
+                subject.getName()
+        );
+    }
+
+    public List<ListGroupsDto> getGroups() {
+        List<Group> groups = groupRepo.findAll();
+        return groups.stream()
+                .map(this::toDtoGroup)
+                .toList();
+    }
+
+    private ListGroupsDto toDtoGroup(Group group) {
+        return new ListGroupsDto(
+                group.getId(),
+                group.getName()
+        );
+    }
+
+    public List<AdminProfileDto> getAdminProfiles() {
+        return userRepo.findAll().stream()
+                .filter(user -> user.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ADMIN")))
+                .map(this::toDtoAdmin)
+                .toList();
+    }
+
+    private AdminProfileDto toDtoAdmin(User user) {
+        return new AdminProfileDto(
+                user.getId(),
+                user.getName(),
+                user.getSurName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getAuthorities()
         );
     }
 }

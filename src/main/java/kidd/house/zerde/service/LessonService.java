@@ -1,5 +1,6 @@
 package kidd.house.zerde.service;
 
+import kidd.house.zerde.dto.adminDto.LockLessonDto;
 import kidd.house.zerde.dto.schedule.*;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
@@ -54,5 +55,25 @@ public class LessonService {
         slot.setLockedTo(lockDateTimeTo);
         slot.setRoomName(roomName);
         lockedSlotRepo.save(slot);
+    }
+
+    public List<LockLessonDto> getLockLesson() {
+        List<LockedSlot> lockedLessons = lockedSlotRepo.findAll();
+        return lockedLessons.stream()
+                .map(this::toDtoLockedLessons)
+                .toList();
+    }
+
+    private LockLessonDto toDtoLockedLessons(LockedSlot lockedSlot) {
+        return new LockLessonDto(
+                lockedSlot.getId(),
+                lockedSlot.getLockedFrom(),
+                lockedSlot.getLockedTo(),
+                lockedSlot.getRoomName()
+        );
+    }
+
+    public void deleteLockLesson(int lockLessonId) {
+        lockedSlotRepo.deleteById(lockLessonId);
     }
 }

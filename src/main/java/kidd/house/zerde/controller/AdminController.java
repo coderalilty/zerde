@@ -61,6 +61,73 @@ public class AdminController {
 
         return ResponseEntity.ok(weekSchedule);
     }
+
+    @GetMapping("/lessons")
+    public ResponseEntity<List<LessonDtos>> getAllLessons(){
+        List<LessonDtos> lessons = adminService.getLessons();
+       return ResponseEntity.ok(lessons);
+    }
+    @GetMapping("/lessons/{lessonId}/children")
+    public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Long lessonId){
+        List<ChildDtos> children = adminService.getChildrenByLessonId(lessonId);
+        return ResponseEntity.ok(children);
+    }
+    @GetMapping("/rooms")
+    public ResponseEntity<List<ListRoomsDto>> getRooms(){
+        List<ListRoomsDto> rooms = adminService.getRooms();
+        return ResponseEntity.ok(rooms);
+    }
+    @GetMapping("/teachers")
+    public ResponseEntity<List<ListTeachersDto>> getTeachers(){
+        List<ListTeachersDto> teachers = adminService.getTeachers();
+        return ResponseEntity.ok(teachers);
+    }
+    @GetMapping("/subjects")
+    public ResponseEntity<List<ListSubjectsDto>> getSubjects(){
+        List<ListSubjectsDto> subjects = adminService.getSubjects();
+        return ResponseEntity.ok(subjects);
+    }
+    @GetMapping("/groups")
+    public ResponseEntity<List<ListGroupsDto>> getGroups(){
+        List<ListGroupsDto> groups = adminService.getGroups();
+        return ResponseEntity.ok(groups);
+    }
+    @GetMapping("/lock-lesson")
+    public ResponseEntity<List<LockLessonDto>> getLockLesson(){
+        List<LockLessonDto> lockLesson = lessonService.getLockLesson();
+        return  ResponseEntity.ok(lockLesson);
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<List<AdminProfileDto>> getAdminProfiles(){
+        List<AdminProfileDto> adminProfileDto = adminService.getAdminProfiles();
+        return ResponseEntity.ok(adminProfileDto);
+    }
+    @PostMapping("/create-teacher")
+    public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
+        adminService.createNewTeacher(createTeacherDto);
+        return new ResponseEntity<>("Teacher successfully created!",HttpStatus.CREATED);
+    }
+    @PostMapping("/create-subject")
+    public ResponseEntity<String> createSubject(@RequestBody CreateSubjectDto createSubjectDto){
+        adminService.createNewSubject(createSubjectDto);
+        return new ResponseEntity<>("Subject successfully created!",HttpStatus.CREATED);
+    }
+    @PostMapping("/create-room")
+    public ResponseEntity<String> createRoom(@RequestBody CreateRoomDto createRoomDto){
+        adminService.createNewRoom(createRoomDto);
+        return new ResponseEntity<>("Room successfully created!",HttpStatus.CREATED);
+    }
+    @PostMapping("/create-group")
+    public ResponseEntity<String> createGroup(@RequestBody CreateGroupDto createGroupDto){
+        adminService.createNewGroup(createGroupDto);
+        return new ResponseEntity<>("Group successfully created!",HttpStatus.CREATED);
+    }
+    @PostMapping("/create-lesson")
+    public ResponseEntity<String> createLesson(@RequestBody CreateLessonDto createLessonDto){
+        adminService.createNewLesson(createLessonDto);
+        adminService.sendNotification(createLessonDto);
+        return new ResponseEntity<>("Lesson successfully created!",HttpStatus.CREATED);
+    }
     @PostMapping("/lock-lesson")
     public ResponseEntity<String> lockLesson(@RequestBody LockLessonRequest lockLessonRequest) {
 
@@ -125,40 +192,9 @@ public class AdminController {
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
-    @GetMapping("/lessons")
-    public ResponseEntity<List<LessonDtos>> getAllLessons(){
-        List<LessonDtos> lessons = adminService.getLessons();
-       return ResponseEntity.ok(lessons);
-    }
-    @GetMapping("/lessons/{lessonId}/children")
-    public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Long lessonId){
-        List<ChildDtos> children = adminService.getChildrenByLessonId(lessonId);
-        return ResponseEntity.ok(children);
-    }
-    @PostMapping("/create-teacher")
-    public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
-        adminService.createNewTeacher(createTeacherDto);
-        return new ResponseEntity<>("Teacher successfully created!",HttpStatus.CREATED);
-    }
-    @PostMapping("/create-subject")
-    public ResponseEntity<String> createSubject(@RequestBody CreateSubjectDto createSubjectDto){
-        adminService.createNewSubject(createSubjectDto);
-        return new ResponseEntity<>("Subject successfully created!",HttpStatus.CREATED);
-    }
-    @PostMapping("/create-room")
-    public ResponseEntity<String> createRoom(@RequestBody CreateRoomDto createRoomDto){
-        adminService.createNewRoom(createRoomDto);
-        return new ResponseEntity<>("Room successfully created!",HttpStatus.CREATED);
-    }
-    @PostMapping("/create-group")
-    public ResponseEntity<String> createGroup(@RequestBody CreateGroupDto createGroupDto){
-        adminService.createNewGroup(createGroupDto);
-        return new ResponseEntity<>("Group successfully created!",HttpStatus.CREATED);
-    }
-    @PostMapping("/create-lesson")
-    public ResponseEntity<String> createLesson(@RequestBody CreateLessonDto createLessonDto){
-        adminService.createNewLesson(createLessonDto);
-        adminService.sendNotification(createLessonDto);
-        return new ResponseEntity<>("Lesson successfully created!",HttpStatus.CREATED);
+    @DeleteMapping("/lock-lesson")
+    public ResponseEntity<String> deleteLockLesson(@PathVariable int lockLesson_id){
+        lessonService.deleteLockLesson(lockLesson_id);
+        return new ResponseEntity<>("DeleteLockLesson success",HttpStatus.OK);
     }
 }
