@@ -4,5 +4,7 @@ public record CreateTeacherDto
         (String name,
          String surname,
          String lastname,
-         String email) {
+         String email,
+         String phone,
+         String subjectName) {
 }

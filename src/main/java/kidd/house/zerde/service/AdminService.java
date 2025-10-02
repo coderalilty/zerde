@@ -27,8 +27,6 @@ public class AdminService {
     @Autowired
     private GroupRepo groupRepo;
     @Autowired
-    private ParentRepo parentRepo;
-    @Autowired
     private LessonRepo lessonRepo;
     @Autowired
     private LockedSlotRepo lockedSlotRepo;
@@ -46,6 +44,10 @@ public class AdminService {
         user.setSurName(createTeacherDto.surname());
         user.setLastName(createTeacherDto.lastname());
         user.setEmail(createTeacherDto.email());
+        user.setPhone(createTeacherDto.phone());
+
+        Subject subject = subjectRepo.findByName(createTeacherDto.subjectName());
+        user.getSubjects().add(subject);
 
         String rawPassword = randomAlphanumeric(8);
         user.setPasswordTemporary(true);
@@ -82,21 +84,6 @@ public class AdminService {
     }
 
     public void createNewLesson(CreateLessonDto createLessonDto) {
-        Parent parent = new Parent();
-        parent.setParentName(createLessonDto.parentName());
-        parent.setMiddleName(createLessonDto.parentSurName());
-        parent.setLastName(createLessonDto.parentLastName());
-        parent.setParentPhone(createLessonDto.parentPhone());
-        parent.setParentEmail(createLessonDto.parentEmail());
-
-
-        Child child = new Child();
-        child.setFirstName(createLessonDto.childName());
-        child.setMiddleName(createLessonDto.childSurName());
-        child.setLastName(createLessonDto.childLastName());
-        child.setAge(createLessonDto.childAge());
-        child.setParent(parent);
-
         Lesson lesson = new Lesson();
         lesson.setFrom(createLessonDto.createLessonFrom());
         lesson.setTo(createLessonDto.createLessonTo());
@@ -112,8 +99,6 @@ public class AdminService {
         User teacher = userRepo.findById(createLessonDto.teacherId());
         lesson.setUser(teacher);
 
-        child.setLesson(lesson);
-        lesson.getChildren().add(child);
         // === 3. Проверка, свободно ли время ===
         if (createLessonDto.groupType().equals("GROUP")){
             // Проверка: нет ли уже заглушки
@@ -130,32 +115,28 @@ public class AdminService {
         } else if (createLessonDto.groupType().equals("INDIVIDUAL")) {
             lessonService.lockLesson(lesson.getFrom(), lesson.getTo(), lesson.getRoom().getName());
         }
-        parentRepo.save(parent);
         lessonRepo.save(lesson);
     }
     public void sendNotification(CreateLessonDto createLessonDto) {
         // Логика отправки уведомления (в будущем можно интегрировать WhatsApp/Telegram API)
-        Parent parent = parentRepo.findByParentPhoneAndParentEmail(
-                createLessonDto.parentPhone(),
-                createLessonDto.parentEmail()
-        );
+        Group group = groupRepo.findById(createLessonDto.groupId());
 
         // Формирование сообщения
         String message = String.format(
                 "Уважаемый(ая) %s, у вас запланирован урок, который состоится с %s до %s.",
-                createLessonDto.childName(),
+                group.getChildren().stream().map(Child::getFirstName),
                 createLessonDto.createLessonFrom(),
                 createLessonDto.createLessonTo()
         );
         // Отправка email родителю, если указан email
-        if (parent.getParentEmail() != null) {
+        if (group.getChildren().stream().map(c -> c.getParent().getParentEmail()) != null) {
             mailSenderService.send(
-                    parent.getParentEmail(),
+                    group.getChildren().stream().map(c -> c.getParent().getParentEmail()).toString(),
                     "Напоминание о предстоящем уроке",
                     message
             );
         }
-        System.out.println("Отправка уведомления для заявки: " + createLessonDto.childName());
+        System.out.println("Отправка уведомления для заявки: " + group.getChildren().stream().map(Child::getFirstName));
     }
     public List<LessonDtos> getLessons(){
         List<Lesson> lessons = lessonRepo.findAll();
@@ -276,5 +257,94 @@ public class AdminService {
                 user.getEmail(),
                 user.getAuthorities()
         );
+    }
+
+    public void createNewChild(ChildDtos childDtos) {
+        Child child = new Child();
+        child.setFirstName(childDtos.firstName());
+        child.setMiddleName(childDtos.middleName());
+        child.setLastName(childDtos.lastName());
+        child.setAge(childDtos.age());
+        childRepo.save(child);
+    }
+
+    public List<ChildDtos> getChildren() {
+        List<Child> children = childRepo.findAll();
+        return children.stream()
+                .map(this::toDtoChild)
+                .toList();
+    }
+
+    public void editChild(int childId, ChildDtos childDtos) {
+        Child child = childRepo.findById(childId);
+        if (childDtos.firstName() != null){
+            child.setFirstName(childDtos.firstName());
+        }
+        if (childDtos.middleName() != null){
+            child.setMiddleName(childDtos.middleName());
+        }
+        if (childDtos.lastName() != null){
+            child.setLastName(childDtos.lastName());
+        }
+        if (childDtos.age() != 0){
+            child.setAge(childDtos.age());
+        }
+        childRepo.save(child);
+    }
+
+    public void deleteChild(int childId) {
+        childRepo.deleteById(childId);
+    }
+
+    public void editTeacher(int teacherId, CreateTeacherDto createTeacherDto) {
+        User teacher = userRepo.findById(teacherId);
+        if (createTeacherDto.name() != null){
+            teacher.setName(createTeacherDto.name());
+        }
+        if (createTeacherDto.surname() != null){
+            teacher.setSurName(createTeacherDto.surname());
+        }
+        if (createTeacherDto.lastname() != null){
+            teacher.setLastName(createTeacherDto.lastname());
+        }
+        if (createTeacherDto.phone() != null){
+            teacher.setPhone(createTeacherDto.phone());
+        }
+        if (createTeacherDto.subjectName() != null) {
+            teacher.getSubjects().get(0).setName(createTeacherDto.subjectName());
+        }
+        userRepo.save(teacher);
+    }
+
+    public void deleteTeacher(int teacherId) {
+        userRepo.deleteById(teacherId);
+    }
+
+    public void editSubject(int subjectId, CreateSubjectDto createSubjectDto) {
+        Subject subject = subjectRepo.findById(subjectId);
+        if (createSubjectDto.subjectName() != null){
+            subject.setName(createSubjectDto.subjectName());
+        }
+        subjectRepo.save(subject);
+    }
+
+    public void editRoom(int roomId, CreateRoomDto createRoomDto) {
+        Room room = roomRepo.findById(roomId);
+        if (createRoomDto.roomName() != null){
+            room.setName(createRoomDto.roomName());
+        }
+        roomRepo.save(room);
+    }
+
+    public void editGroup(int appGroupId, CreateGroupDto createGroupDto) {
+        Group group = groupRepo.findById(appGroupId);
+        if (createGroupDto.groupName() != null){
+            group.setName(createGroupDto.groupName());
+        }
+        groupRepo.save(group);
+    }
+
+    public void deleteGroup(int appGroupId) {
+        groupRepo.deleteById(appGroupId);
     }
 }

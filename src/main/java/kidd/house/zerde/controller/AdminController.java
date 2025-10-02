@@ -9,7 +9,9 @@ import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
-import kidd.house.zerde.service.*;
+import kidd.house.zerde.service.AdminService;
+import kidd.house.zerde.service.LessonService;
+import kidd.house.zerde.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -71,6 +72,11 @@ public class AdminController {
     public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Long lessonId){
         List<ChildDtos> children = adminService.getChildrenByLessonId(lessonId);
         return ResponseEntity.ok(children);
+    }
+    @GetMapping("/children")
+    public ResponseEntity<List<ChildDtos>> getChildList(){
+        List<ChildDtos> childDtosList = adminService.getChildren();
+        return ResponseEntity.ok(childDtosList);
     }
     @GetMapping("/rooms")
     public ResponseEntity<List<ListRoomsDto>> getRooms(){
@@ -128,6 +134,11 @@ public class AdminController {
         adminService.sendNotification(createLessonDto);
         return new ResponseEntity<>("Lesson successfully created!",HttpStatus.CREATED);
     }
+    @PostMapping("/create-child")
+    public ResponseEntity<String> createChild(@RequestBody ChildDtos childDtos){
+        adminService.createNewChild(childDtos);
+        return new ResponseEntity<>("Child successfully created!",HttpStatus.CREATED);
+    }
     @PostMapping("/lock-lesson")
     public ResponseEntity<String> lockLesson(@RequestBody LockLessonRequest lockLessonRequest) {
 
@@ -138,34 +149,34 @@ public class AdminController {
         lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomName);
 
         return new ResponseEntity<>("Lesson locked successfully for room ID " + roomName
-                + " from " + lockDateTimeFrom + " to " + lockDateTimeTo, HttpStatus.LOCKED);
+                + " from " + lockDateTimeFrom + " to " + lockDateTimeTo, HttpStatus.OK);
     }
 
     @PostMapping("/send-notification")
     public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notificationRequest) {
         int lessonId = notificationRequest.lessonId();
-        Optional<Lesson> lesson = lessonService.findById(lessonId);
+        Lesson lesson = lessonService.findById(lessonId);
         // Поиск урока по lessonId через сервис
-        if (lesson.isEmpty()) {
+        if (lesson != null) {
             return ResponseEntity.status(404).body("Lesson not found");
         }
 
-        List<ChildDto> childFirstName = lessonMapper.getChildFirstName(lesson.get());
+        List<ChildDto> childFirstName = lessonMapper.getChildFirstName(lesson);
 
         // Формирование сообщения
         String message = String.format(
                 "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
                 childFirstName,
                 "Gregory",
-                lesson.get().getFrom(),
-                lesson.get().getTo(),
+                lesson.getFrom(),
+                lesson.getTo(),
                 "202"
         );
         try {
             // Отправка email родителю, если указан email
-            if (lesson.get().getChildren().get(0).getParent().getParentEmail() != null) {
+            if (lesson.getChildren().get(0).getParent().getParentEmail() != null) {
                 mailSenderService.send(
-                        lesson.get().getChildren().get(0).getParent().getParentEmail(),
+                        lesson.getChildren().get(0).getParent().getParentEmail(),
                         "Напоминание о предстоящем уроке",
                         message
                 );
@@ -192,9 +203,59 @@ public class AdminController {
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
+    @PutMapping("/edit_lesson")
+    public ResponseEntity<String> editLesson(@PathVariable int lesson_id,@RequestBody LessonDtos lessonDtos){
+        lessonService.editLesson(lesson_id,lessonDtos);
+        return new ResponseEntity<>("Lesson edited",HttpStatus.OK);
+    }
+    @PutMapping("/edit_child")
+    public ResponseEntity<String> editChild(@PathVariable int child_id,@RequestBody ChildDtos childDtos){
+        adminService.editChild(child_id,childDtos);
+        return new ResponseEntity<>("Child edited",HttpStatus.OK);
+    }
+    @PutMapping("/edit_teacher")
+    public ResponseEntity<String> editTeacher(@PathVariable int teacher_id, @RequestBody CreateTeacherDto createTeacherDto){
+        adminService.editTeacher(teacher_id,createTeacherDto);
+        return new ResponseEntity<>("Teacher edited",HttpStatus.OK);
+    }
+    @PutMapping("/edit-subject")
+    public ResponseEntity<String> editSubject(@PathVariable int subject_id,@RequestBody CreateSubjectDto createSubjectDto){
+        adminService.editSubject(subject_id,createSubjectDto);
+        return new ResponseEntity<>("Subject edited",HttpStatus.OK);
+    }
+    @PutMapping("/edit-room")
+    public ResponseEntity<String> editRoom(@PathVariable int room_id,@RequestBody CreateRoomDto createRoomDto){
+        adminService.editRoom(room_id,createRoomDto);
+        return new ResponseEntity<>("Room edited",HttpStatus.OK);
+    }
+    @PutMapping("/edit-group")
+    public ResponseEntity<String> editGroup(@PathVariable int app_group_id,@RequestBody CreateGroupDto createGroupDto){
+        adminService.editGroup(app_group_id,createGroupDto);
+        return new ResponseEntity<>("Room edited",HttpStatus.OK);
+    }
     @DeleteMapping("/lock-lesson")
     public ResponseEntity<String> deleteLockLesson(@PathVariable int lockLesson_id){
         lessonService.deleteLockLesson(lockLesson_id);
         return new ResponseEntity<>("DeleteLockLesson success",HttpStatus.OK);
+    }
+    @DeleteMapping("/delete-lesson")
+    public ResponseEntity<String> deleteLesson(@PathVariable int lesson_id){
+        lessonService.deleteLesson(lesson_id);
+        return new ResponseEntity<>("Delete Lesson success",HttpStatus.OK);
+    }
+    @DeleteMapping("/delete-child")
+    public ResponseEntity<String> deleteChild(@PathVariable int child_id){
+        adminService.deleteChild(child_id);
+        return new ResponseEntity<>("Delete Child success",HttpStatus.OK);
+    }
+    @DeleteMapping("/delete-teacher")
+    public ResponseEntity<String> deleteTeacher(@PathVariable int teacher_id){
+        adminService.deleteTeacher(teacher_id);
+        return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
+    }
+    @DeleteMapping("/delete-group")
+    public ResponseEntity<String> deleteGroup(@PathVariable int app_group_id){
+        adminService.deleteGroup(app_group_id);
+        return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
     }
 }

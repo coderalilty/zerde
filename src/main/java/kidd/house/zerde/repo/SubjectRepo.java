@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubjectRepo extends JpaRepository<Subject,Integer> {
     Subject findById(int subjectId);
+
+    Subject findByName(String subjectName);
 }

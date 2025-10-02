@@ -1,10 +1,12 @@
 package kidd.house.zerde.service;
 
+import kidd.house.zerde.dto.adminDto.LessonDtos;
 import kidd.house.zerde.dto.adminDto.LockLessonDto;
-import kidd.house.zerde.dto.schedule.*;
+import kidd.house.zerde.dto.schedule.LessonDto;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.LockedSlot;
+import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.repo.LessonRepo;
 import kidd.house.zerde.repo.LockedSlotRepo;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class LessonService {
         List<Lesson> lessons = lessonRepo.findAll();
         return lessonMapper.toDtoList(lessons);
     }
-    public Optional<Lesson> findById(int lessonId) {
+    public Lesson findById(int lessonId) {
         return lessonRepo.findById(lessonId);
     }
     public List<Lesson> findLessonsBetween(String from,String to,String roomName){
@@ -75,5 +76,41 @@ public class LessonService {
 
     public void deleteLockLesson(int lockLessonId) {
         lockedSlotRepo.deleteById(lockLessonId);
+    }
+
+    public void deleteLesson(int lessonId) {
+        lessonRepo.deleteById(lessonId);
+    }
+
+    public void editLesson(int lessonId, LessonDtos lessonDtos) {
+        Lesson lesson = lessonRepo.findById(lessonId);
+
+        if (lessonDtos.lessonName() != null){
+            lesson.setLessonName(lessonDtos.lessonName());
+        }
+        if (lessonDtos.lessonDay() != null) {
+            lesson.setLessonDay(lessonDtos.lessonDay());
+        }
+        if (lessonDtos.from() != null){
+            lesson.setFrom(lessonDtos.from());
+        }
+        if (lessonDtos.to() != null){
+            lesson.setTo(lessonDtos.to());
+        }
+        if (lessonDtos.groupType() != null){
+            lesson.setGroupType(lessonDtos.groupType());
+        }
+        if (lessonDtos.groupName() != null){
+            lesson.getGroup().setName(lessonDtos.groupName());
+        }
+        if (lessonDtos.roomName() != null){
+            lesson.getRoom().setName(lessonDtos.roomName());
+        }
+        if (lessonDtos.subjectName() != null){
+            lesson.getSubject().setName(lessonDtos.subjectName());
+        }
+        lesson.setLessonStatus(LessonStatus.EDITED);
+
+        lessonRepo.save(lesson);
     }
 }

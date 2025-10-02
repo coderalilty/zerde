@@ -13,4 +13,5 @@ public interface LessonRepo extends JpaRepository<Lesson,Integer> {
             String from,
             String to,
             String roomName);
+    Lesson findById(int lessonId);
 }
