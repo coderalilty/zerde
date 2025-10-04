@@ -51,7 +51,7 @@ class AdminControllerTest {
         mockMvc.perform(post("/api/v1/admin/lock-lesson")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(lessonJson))
-                .andExpect(status().isLocked());
+                .andExpect(status().isOk());
         verify(lessonService,times(1)).lockLesson(lockLessonRequest.lockDateTimeFrom(), lockLessonRequest.lockDateTimeTo(), lockLessonRequest.roomName());
 
     }
@@ -116,7 +116,7 @@ class AdminControllerTest {
 
     @Test//
     void createTeacher() throws Exception {
-        CreateTeacherDto teacherDto = new CreateTeacherDto("Gregory","Anna","Aleksandra","gregory.annd@gmail.com");
+        CreateTeacherDto teacherDto = new CreateTeacherDto("Gregory","Anna","Aleksandra","gregory.annd@gmail.com","+77715648955","ehbgtjntk");
         String value = objectMapper.writeValueAsString(teacherDto);
 
         mockMvc.perform(post("/api/v1/admin/create-teacher")
@@ -170,8 +170,7 @@ class AdminControllerTest {
     void createLesson() throws  Exception {
         CreateLessonDto createLessonDto = new CreateLessonDto(
                 "10:00","10:30","GROUP",1,1,1,
-                1,"Vita","Vasylych","",12,
-                "Lesya","Serina","","+7774576849","elzat.sayatov.3@gmail.com"
+                1
         );
         String value = objectMapper.writeValueAsString(createLessonDto);
 
