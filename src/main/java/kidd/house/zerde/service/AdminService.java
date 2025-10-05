@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
@@ -46,8 +47,8 @@ public class AdminService {
         user.setEmail(createTeacherDto.email());
         user.setPhone(createTeacherDto.phone());
 
-        Subject subject = subjectRepo.findByName(createTeacherDto.subjectName());
-        user.getSubjects().add(subject);
+        List<Subject> subject = Collections.singletonList(subjectRepo.findByName(createTeacherDto.subjectName()));
+        user.setSubjects(subject);
 
         String rawPassword = randomAlphanumeric(8);
         user.setPasswordTemporary(true);

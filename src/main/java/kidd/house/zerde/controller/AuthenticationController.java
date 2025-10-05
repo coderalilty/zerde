@@ -1,9 +1,7 @@
 package kidd.house.zerde.controller;
 
-import jakarta.validation.Valid;
 import kidd.house.zerde.dto.adminDto.ChangePasswordDto;
 import kidd.house.zerde.dto.registration.JwtAuthenticationResponce;
-import kidd.house.zerde.dto.registration.RefreshTokenRequest;
 import kidd.house.zerde.dto.registration.SignInRequest;
 import kidd.house.zerde.dto.registration.SignUpRequest;
 import kidd.house.zerde.service.AuthenticationService;
@@ -30,10 +28,6 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponce> signIn(@RequestBody SignInRequest signInRequest){
         return new ResponseEntity<>(authenticationService.signIn(signInRequest), HttpStatus.OK);
-    }
-    @PostMapping("/refresh")
-    public ResponseEntity<JwtAuthenticationResponce> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
-        return new ResponseEntity<>(authenticationService.refreshToken(refreshTokenRequest), HttpStatus.OK);
     }
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto dto) {

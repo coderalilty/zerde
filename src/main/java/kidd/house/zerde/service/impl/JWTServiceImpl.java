@@ -15,12 +15,10 @@ import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 @Service
 public class JWTServiceImpl implements JWTService {
-
     @Override
     public String generateToken(UserDetails userDetails){
         return Jwts.builder()
@@ -33,21 +31,6 @@ public class JWTServiceImpl implements JWTService {
                 .signWith(getSiginKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
-    @Override
-    public String generateRefrechToken(Map<String, Object> extraClaims, UserDetails userDetails){
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .claim("authorities", userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList())
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 604800000))
-                .signWith(getSiginKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
     @Override
     public String extractUserName(String token){
         return extractClaim(token, Claims::getSubject);

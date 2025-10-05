@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "locked_slot")
+@Table(name = "locked_slots")
 public class LockedSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

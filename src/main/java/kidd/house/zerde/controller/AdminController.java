@@ -203,57 +203,57 @@ public class AdminController {
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
-    @PutMapping("/edit_lesson")
+    @PutMapping("/edit_lesson/{lesson_id}")
     public ResponseEntity<String> editLesson(@PathVariable int lesson_id,@RequestBody LessonDtos lessonDtos){
         lessonService.editLesson(lesson_id,lessonDtos);
         return new ResponseEntity<>("Lesson edited",HttpStatus.OK);
     }
-    @PutMapping("/edit_child")
+    @PutMapping("/edit_child/{child_id}")
     public ResponseEntity<String> editChild(@PathVariable int child_id,@RequestBody ChildDtos childDtos){
         adminService.editChild(child_id,childDtos);
         return new ResponseEntity<>("Child edited",HttpStatus.OK);
     }
-    @PutMapping("/edit_teacher")
+    @PutMapping("/edit_teacher/{teacher_id}")
     public ResponseEntity<String> editTeacher(@PathVariable int teacher_id, @RequestBody CreateTeacherDto createTeacherDto){
         adminService.editTeacher(teacher_id,createTeacherDto);
         return new ResponseEntity<>("Teacher edited",HttpStatus.OK);
     }
-    @PutMapping("/edit-subject")
+    @PutMapping("/edit-subject/{subject_id}")
     public ResponseEntity<String> editSubject(@PathVariable int subject_id,@RequestBody CreateSubjectDto createSubjectDto){
         adminService.editSubject(subject_id,createSubjectDto);
         return new ResponseEntity<>("Subject edited",HttpStatus.OK);
     }
-    @PutMapping("/edit-room")
+    @PutMapping("/edit-room/{room_id}")
     public ResponseEntity<String> editRoom(@PathVariable int room_id,@RequestBody CreateRoomDto createRoomDto){
         adminService.editRoom(room_id,createRoomDto);
         return new ResponseEntity<>("Room edited",HttpStatus.OK);
     }
-    @PutMapping("/edit-group")
+    @PutMapping("/edit-group/{app_group_id}")
     public ResponseEntity<String> editGroup(@PathVariable int app_group_id,@RequestBody CreateGroupDto createGroupDto){
         adminService.editGroup(app_group_id,createGroupDto);
         return new ResponseEntity<>("Room edited",HttpStatus.OK);
     }
-    @DeleteMapping("/lock-lesson")
+    @DeleteMapping("/lock-lesson/{lockLesson_id}")
     public ResponseEntity<String> deleteLockLesson(@PathVariable int lockLesson_id){
         lessonService.deleteLockLesson(lockLesson_id);
         return new ResponseEntity<>("DeleteLockLesson success",HttpStatus.OK);
     }
-    @DeleteMapping("/delete-lesson")
+    @DeleteMapping("/delete-lesson/{lesson_id}")
     public ResponseEntity<String> deleteLesson(@PathVariable int lesson_id){
         lessonService.deleteLesson(lesson_id);
         return new ResponseEntity<>("Delete Lesson success",HttpStatus.OK);
     }
-    @DeleteMapping("/delete-child")
+    @DeleteMapping("/delete-child/{child_id}")
     public ResponseEntity<String> deleteChild(@PathVariable int child_id){
         adminService.deleteChild(child_id);
         return new ResponseEntity<>("Delete Child success",HttpStatus.OK);
     }
-    @DeleteMapping("/delete-teacher")
+    @DeleteMapping("/delete-teacher/{teacher_id}")
     public ResponseEntity<String> deleteTeacher(@PathVariable int teacher_id){
         adminService.deleteTeacher(teacher_id);
         return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
     }
-    @DeleteMapping("/delete-group")
+    @DeleteMapping("/delete-group/{app_group_id}")
     public ResponseEntity<String> deleteGroup(@PathVariable int app_group_id){
         adminService.deleteGroup(app_group_id);
         return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
