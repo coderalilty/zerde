@@ -4,7 +4,6 @@ import kidd.house.zerde.dto.registration.SignUpRequest;
 import kidd.house.zerde.model.entity.User;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.repo.UserRepo;
-import kidd.house.zerde.service.JWTService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,8 +23,6 @@ class AuthenticationServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private AuthenticationManager authenticationManager;
-    @Mock
-    private JWTService jwtService;
 
     @Test
     void signUp() {
@@ -46,9 +43,5 @@ class AuthenticationServiceImplTest {
        // Mockito.when(userRepo.findByEmail(signUpRequest.email())).thenReturn(signUpRequest.email());
 //        Mockito.verify(userRepo,Mockito.times(1)).findByEmail(signUpRequest.email())
 //                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-    }
-
-    @Test
-    void refreshToken() {
     }
 }

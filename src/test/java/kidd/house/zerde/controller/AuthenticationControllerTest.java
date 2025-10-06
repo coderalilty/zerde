@@ -2,7 +2,6 @@ package kidd.house.zerde.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kidd.house.zerde.dto.adminDto.ChangePasswordDto;
-import kidd.house.zerde.dto.registration.RefreshTokenRequest;
 import kidd.house.zerde.dto.registration.SignInRequest;
 import kidd.house.zerde.dto.registration.SignUpRequest;
 import kidd.house.zerde.service.AuthenticationService;
@@ -58,17 +57,6 @@ class AuthenticationControllerTest {
                 .content(userJson))
                 .andExpect(status().isOk());
         verify(authenticationService, times(1)).signIn(user);
-    }
-
-    @Test
-    void refresh() throws Exception {
-        RefreshTokenRequest refresh = new RefreshTokenRequest("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDkwMjI5OTgsImV4cCI6MTc0OTAyNDQzOH0.Uj3Wl-C5eCVlgQ49CVeAvvuuFvZfFtZqmnWxgMK_T9A");
-        String userJson = objectMapper.writeValueAsString(refresh);
-        mockMvc.perform(post("/api/v1/auth/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isOk());
-        verify(authenticationService, times(1)).refreshToken(refresh);
     }
 
     @Test
