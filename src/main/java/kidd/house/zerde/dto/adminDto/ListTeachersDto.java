@@ -1,5 +1,6 @@
 package kidd.house.zerde.dto.adminDto;
 
+import kidd.house.zerde.model.entity.Subject;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -12,6 +13,6 @@ public record ListTeachersDto(
         String email,
         Collection<? extends GrantedAuthority> authorities,
         boolean passwordTemporary,
-        List<ListSubjectsDto> subjects
+        List<Subject> subjects
 ) {
 }

@@ -203,9 +203,6 @@ public class AdminService {
     }
 
     private ListTeachersDto toDtoTeachers(User user) {
-        List<ListSubjectsDto> subjectDto = user.getSubjects().stream()
-                .map(subject -> new ListSubjectsDto(subject.getId(), subject.getName()))
-                .toList();
         return new ListTeachersDto(
                 user.getName(),
                 user.getSurName(),
@@ -213,7 +210,7 @@ public class AdminService {
                 user.getEmail(),
                 user.getAuthorities(),
                 user.isPasswordTemporary(),
-                subjectDto
+                user.getSubjects()
         );
     }
 

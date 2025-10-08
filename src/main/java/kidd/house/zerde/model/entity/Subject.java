@@ -1,5 +1,6 @@
 package kidd.house.zerde.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,5 +18,6 @@ public class Subject {
     @ManyToMany
     @JoinTable(name = "teacher_subjects",joinColumns = @JoinColumn(name = "subjects_id"),
             inverseJoinColumns = @JoinColumn(name = "users_id"))
+    @JsonIgnore
     private List<User> users;
 }
