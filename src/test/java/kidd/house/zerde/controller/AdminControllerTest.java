@@ -10,13 +10,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -107,12 +113,28 @@ class AdminControllerTest {
     }
 
     @Test//get
-    void getAllLessons() {
-    }
+    void getAllLessons() throws Exception{
+        LessonDtos lessonDtos = new LessonDtos("lesson name","10:00","11:00",
+                "20.05.2025","GROUP","IT-001","202","subject");
+        List<LessonDtos> lessonDtosList = List.of(lessonDtos);
 
-    @Test//get
-    void getChildList() {
+        Mockito.when(adminService.getLessons()).thenReturn(lessonDtosList);
+
+        mockMvc.perform(get("/api/v1/admin/lessons")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
+//    @Test//get
+//    void getChildList() throws Exception{
+//        ChildDtos childDtos = new ChildDtos("Petr","Vasylich","",6);
+//        List<ChildDtos> childDtosList = List.of(childDtos);
+//
+//        Mockito.when(adminService.getChildrenByLessonId(1L)).thenReturn(childDtosList);
+//
+//        mockMvc.perform(get("/api/v1/admin/lessons/{lessonId}/children")
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//    }
 
     @Test//
     void createTeacher() throws Exception {
@@ -181,5 +203,143 @@ class AdminControllerTest {
 
         verify(adminService, times(1)).createNewLesson(createLessonDto);
         verify(adminService, times(1)).sendNotification(createLessonDto);
+    }
+    @Test
+    void getRooms() throws Exception {
+        ListRoomsDto listRoomsDto = new ListRoomsDto(1,"202");
+        List<ListRoomsDto> listRoomsDtos = List.of(listRoomsDto);
+
+        Mockito.when(adminService.getRooms()).thenReturn(listRoomsDtos);
+
+        mockMvc.perform(get("/api/v1/admin/rooms")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getTeachers() throws Exception{
+        ListSubjectsDto listSubjectsDto = new ListSubjectsDto(1,"match");
+        List<ListSubjectsDto> listSubjectsDtos = List.of(listSubjectsDto);
+
+        GrantedAuthority teacherRole = new SimpleGrantedAuthority("TEACHER");
+
+        ListTeachersDto listTeachersDto = new ListTeachersDto("Petr","Sergeyovich","",
+                "petr.gregorivich@mail.ru",teacherRole,true,listSubjectsDtos);
+        List<ListTeachersDto> listTeachersDtos = List.of(listTeachersDto);
+
+        Mockito.when(adminService.getTeachers()).thenReturn(listTeachersDtos);
+
+        mockMvc.perform(get("/api/v1/admin/teachers")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getSubjects() throws Exception {
+        ListSubjectsDto listSubjectsDto = new ListSubjectsDto(1,"match");
+        List<ListSubjectsDto> listSubjectsDtos = List.of(listSubjectsDto);
+
+        Mockito.when(adminService.getSubjects()).thenReturn(listSubjectsDtos);
+
+        mockMvc.perform(get("/api/v1/admin/subjects")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getGroups() throws Exception{
+        ListGroupsDto listGroupsDto = new ListGroupsDto(1,"IT-001");
+        List<ListGroupsDto> listGroupsDtos = List.of(listGroupsDto);
+
+        Mockito.when(adminService.getGroups()).thenReturn(listGroupsDtos);
+
+        mockMvc.perform(get("/api/v1/admin/groups")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getLockLesson() throws Exception{
+        LockLessonDto lockLessonDto = new LockLessonDto(1,"20.05.2025 10:00","20.05.2025 11:00","202");
+        List<LockLessonDto> lockLessonDtos = List.of(lockLessonDto);
+
+        Mockito.when(lessonService.getLockLesson()).thenReturn(lockLessonDtos);
+
+        mockMvc.perform(get("/api/v1/admin/lock-lesson")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAdminProfiles() throws Exception {
+        GrantedAuthority adminRole = new SimpleGrantedAuthority("ADMIN");
+
+        AdminProfileDto adminProfileDto = new AdminProfileDto(1,"Admin","Adminovich","",
+                "admin@mail.ru",adminRole);
+        List<AdminProfileDto> adminProfileDtos = List.of(adminProfileDto);
+
+        Mockito.when(adminService.getAdminProfiles()).thenReturn(adminProfileDtos);
+
+        mockMvc.perform(get("/api/v1/admin/profile")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void createChild() throws Exception{
+        ChildDtos childDtos = new ChildDtos("Askar","Aukenov","Amanuly",26);
+
+        String value = objectMapper.writeValueAsString(childDtos);
+
+        mockMvc.perform(post("/api/v1/admin/create-child")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(value))
+                .andExpect(status().isCreated());
+
+        verify(adminService,times(1)).createNewChild(childDtos);
+    }
+
+    @Test
+    void editLesson() {
+    }
+
+    @Test
+    void editChild() {
+    }
+
+    @Test
+    void editTeacher() {
+    }
+
+    @Test
+    void editSubject() {
+    }
+
+    @Test
+    void editRoom() {
+    }
+
+    @Test
+    void editGroup() {
+    }
+
+    @Test
+    void deleteLockLesson() {
+    }
+
+    @Test
+    void deleteLesson() {
+    }
+
+    @Test
+    void deleteChild() {
+    }
+
+    @Test
+    void deleteTeacher() {
+    }
+
+    @Test
+    void deleteGroup() {
     }
 }

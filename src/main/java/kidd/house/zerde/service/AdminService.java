@@ -8,6 +8,7 @@ import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -203,14 +204,17 @@ public class AdminService {
     }
 
     private ListTeachersDto toDtoTeachers(User user) {
+        List<ListSubjectsDto> subjectDtos = user.getSubjects().stream()
+                .map(subject -> new ListSubjectsDto(1,subject.getName()))
+                .toList();
         return new ListTeachersDto(
                 user.getName(),
                 user.getSurName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getAuthorities(),
+                (GrantedAuthority) user.getAuthorities(),
                 user.isPasswordTemporary(),
-                user.getSubjects()
+                subjectDtos
         );
     }
 
@@ -256,7 +260,7 @@ public class AdminService {
                 user.getSurName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getAuthorities()
+                (GrantedAuthority) user.getAuthorities()
         );
     }
 
