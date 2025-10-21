@@ -168,7 +168,7 @@ class AdminServiceTest {
 
     @Test
     void getChildrenByLessonId() {
-        adminService.getChildrenByLessonId(1L);
-        Mockito.verify(childRepo,Mockito.times(1)).findByLessonId(1L);
+        adminService.getChildrenByLessonId(1);
+        Mockito.verify(childRepo,Mockito.times(1)).findByLessonId(1);
     }
 }

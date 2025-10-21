@@ -8,7 +8,6 @@ import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -162,7 +161,7 @@ public class AdminService {
                 lesson.getSubject().getName()
         );
     }
-    public List<ChildDtos> getChildrenByLessonId(Long lessonId){
+    public List<ChildDtos> getChildrenByLessonId(int lessonId){
         List<Child> children = childRepo.findByLessonId(lessonId);
         return toDtoListChild(children);
     }
@@ -212,7 +211,7 @@ public class AdminService {
                 user.getSurName(),
                 user.getLastName(),
                 user.getEmail(),
-                (GrantedAuthority) user.getAuthorities(),
+                user.getAuthorities(),
                 user.isPasswordTemporary(),
                 subjectDtos
         );
@@ -260,7 +259,7 @@ public class AdminService {
                 user.getSurName(),
                 user.getLastName(),
                 user.getEmail(),
-                (GrantedAuthority) user.getAuthorities()
+                user.getAuthorities()
         );
     }
 

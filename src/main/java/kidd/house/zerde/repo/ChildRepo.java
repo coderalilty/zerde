@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ChildRepo extends JpaRepository<Child,Integer> {
-    List<Child> findByLessonId(Long lessonId);
+    List<Child> findByLessonId(int lessonId);
     Child findById(int child_id);
 }

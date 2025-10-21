@@ -69,7 +69,7 @@ public class AdminController {
        return ResponseEntity.ok(lessons);
     }
     @GetMapping("/lessons/{lessonId}/children")
-    public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Long lessonId){
+    public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Integer lessonId){
         List<ChildDtos> children = adminService.getChildrenByLessonId(lessonId);
         return ResponseEntity.ok(children);
     }

@@ -2,6 +2,7 @@ package kidd.house.zerde.dto.adminDto;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.List;
 
 public record ListTeachersDto(
@@ -9,7 +10,7 @@ public record ListTeachersDto(
         String surName,
         String lastName,
         String email,
-        GrantedAuthority authorities,
+        Collection<? extends GrantedAuthority> authorities,
         boolean passwordTemporary,
         List<ListSubjectsDto> subjects
 ) {
