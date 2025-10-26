@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
@@ -121,23 +123,35 @@ public class AdminService {
     public void sendNotification(CreateLessonDto createLessonDto) {
         // Логика отправки уведомления (в будущем можно интегрировать WhatsApp/Telegram API)
         Group group = groupRepo.findById(createLessonDto.groupId());
+        // Получаем список имён детей (для текста)
+        String childNames = group.getChildren().stream()
+                .map(Child::getFirstName)
+                .collect(Collectors.joining(", "));
 
-        // Формирование сообщения
+        // Формируем сообщение
         String message = String.format(
                 "Уважаемый(ая) %s, у вас запланирован урок, который состоится с %s до %s.",
-                group.getChildren().stream().map(Child::getFirstName),
+                childNames,
                 createLessonDto.createLessonFrom(),
                 createLessonDto.createLessonTo()
         );
-        // Отправка email родителю, если указан email
-        if (group.getChildren().stream().map(c -> c.getParent().getParentEmail()) != null) {
+
+        // Получаем список email'ов родителей
+        List<String> emails = group.getChildren().stream()
+                .map(c -> c.getParent().getParentEmail())
+                .filter(Objects::nonNull)
+                .toList();
+
+        // Отправляем письма каждому родителю
+        for (String email : emails) {
             mailSenderService.send(
-                    group.getChildren().stream().map(c -> c.getParent().getParentEmail()).toString(),
+                    email,
                     "Напоминание о предстоящем уроке",
                     message
             );
         }
-        System.out.println("Отправка уведомления для заявки: " + group.getChildren().stream().map(Child::getFirstName));
+
+        System.out.println("Отправлено уведомление родителям: " + childNames);
     }
     public List<LessonDtos> getLessons(){
         List<Lesson> lessons = lessonRepo.findAll();
@@ -350,5 +364,9 @@ public class AdminService {
 
     public void deleteGroup(int appGroupId) {
         groupRepo.deleteById(appGroupId);
+    }
+
+    public void deleteRoom(int roomId) {
+        roomRepo.deleteById(roomId);
     }
 }

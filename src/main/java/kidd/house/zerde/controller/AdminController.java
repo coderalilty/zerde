@@ -258,4 +258,9 @@ public class AdminController {
         adminService.deleteGroup(app_group_id);
         return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
     }
+    @DeleteMapping("/delete-room/{room_id}")
+    public ResponseEntity<String> deleteRoom(@PathVariable int room_id){
+        adminService.deleteRoom(room_id);
+        return new ResponseEntity<>("Delete Room success",HttpStatus.OK);
+    }
 }
