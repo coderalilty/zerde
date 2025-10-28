@@ -354,11 +354,18 @@ public class AdminService {
         roomRepo.save(room);
     }
 
-    public void editGroup(int appGroupId, CreateGroupDto createGroupDto) {
+    public void editGroup(int appGroupId, EditGroupDto editGroupDto) {
         Group group = groupRepo.findById(appGroupId);
-        if (createGroupDto.groupName() != null){
-            group.setName(createGroupDto.groupName());
+
+        if (editGroupDto.groupName() != null) {
+            group.setName(editGroupDto.groupName());
         }
+
+        if (editGroupDto.childIds() != null && !editGroupDto.childIds().isEmpty()) {
+            List<Child> children = childRepo.findAllById(editGroupDto.childIds());
+            group.getChildren().addAll(children); // ✅ добавляем, не затираем
+        }
+
         groupRepo.save(group);
     }
 
@@ -368,5 +375,9 @@ public class AdminService {
 
     public void deleteRoom(int roomId) {
         roomRepo.deleteById(roomId);
+    }
+
+    public void deleteSubject(int subjectId) {
+        subjectRepo.deleteById(subjectId);
     }
 }

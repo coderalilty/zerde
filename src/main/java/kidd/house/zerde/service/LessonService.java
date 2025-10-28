@@ -2,8 +2,6 @@ package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.LessonDtos;
 import kidd.house.zerde.dto.adminDto.LockLessonDto;
-import kidd.house.zerde.dto.schedule.LessonDto;
-import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.LockedSlot;
 import kidd.house.zerde.model.status.LessonStatus;
@@ -21,13 +19,7 @@ public class LessonService {
     @Autowired
     private LessonRepo lessonRepo;
     @Autowired
-    private LessonMapper lessonMapper;
-    @Autowired
     private LockedSlotRepo lockedSlotRepo;
-    public List<LessonDto> getAllLessons() {
-        List<Lesson> lessons = lessonRepo.findAll();
-        return lessonMapper.toDtoList(lessons);
-    }
     public Lesson findById(int lessonId) {
         return lessonRepo.findById(lessonId);
     }

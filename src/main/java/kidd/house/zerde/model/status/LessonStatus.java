@@ -5,5 +5,6 @@ public enum LessonStatus {
     CANCELLED,
     COMPLETED,
     RESERVED,
-    EDITED
+    EDITED,
+    TEMPORARY
 }

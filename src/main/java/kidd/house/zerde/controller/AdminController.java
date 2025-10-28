@@ -3,10 +3,7 @@ package kidd.house.zerde.controller;
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.ChildDto;
-import kidd.house.zerde.dto.schedule.LessonDto;
-import kidd.house.zerde.dto.schedule.RoomDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
-import kidd.house.zerde.dto.weekSchedule.WeekScheduleResponse;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.AdminService;
@@ -17,52 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 public class AdminController {
-    private final LessonService lessonService;  // Сервис для работы с уроками
+    private final LessonService lessonService;
     private final LessonMapper lessonMapper;
     private final MailSenderService mailSenderService;
     private final AdminService adminService;
-    @GetMapping("/first-visit-schedule")
-    public ResponseEntity<List<LessonDto>> schedule(){
-        // Получаем список уроков из сервиса
-        List<LessonDto> lessons = lessonService.getAllLessons();
-        if (!lessons.isEmpty()){
-            return new ResponseEntity<>(lessons, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null , HttpStatus.NOT_FOUND);
-    }
-    @GetMapping("/week-schedule")
-    public ResponseEntity<List<WeekScheduleResponse>> weekSchedule() {
-        // Получаем уроки из метода schedule()
-        List<LessonDto> lessons = schedule().getBody();
-        String lessonTime = lessonMapper.getLessonTime();
-        // Группируем уроки по комнатам
-        Map<String, List<LessonDto>> roomMap = lessons.stream()
-                .collect(Collectors.groupingBy(lesson -> lesson.roomDto().name()));
-
-        // Формируем список объектов WeekScheduleResponse
-        List<WeekScheduleResponse> weekSchedule = new ArrayList<>();
-        roomMap.forEach((roomName, lessonList) -> {
-            RoomDto room = new RoomDto(roomName);
-            weekSchedule.add(new WeekScheduleResponse(
-                    //LocalDate.now().format(formatter)
-                    lessonTime, // Дата
-                    room, // Комната
-                    lessonList // Уроки в комнате
-            ));
-        });
-
-        return ResponseEntity.ok(weekSchedule);
-    }
-
     @GetMapping("/lessons")
     public ResponseEntity<List<LessonDtos>> getAllLessons(){
         List<LessonDtos> lessons = adminService.getLessons();
@@ -203,6 +164,7 @@ public class AdminController {
 
         return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
     }
+
     @PutMapping("/edit_lesson/{lesson_id}")
     public ResponseEntity<String> editLesson(@PathVariable int lesson_id,@RequestBody LessonDtos lessonDtos){
         lessonService.editLesson(lesson_id,lessonDtos);
@@ -229,14 +191,14 @@ public class AdminController {
         return new ResponseEntity<>("Room edited",HttpStatus.OK);
     }
     @PutMapping("/edit-group/{app_group_id}")
-    public ResponseEntity<String> editGroup(@PathVariable int app_group_id,@RequestBody CreateGroupDto createGroupDto){
-        adminService.editGroup(app_group_id,createGroupDto);
-        return new ResponseEntity<>("Room edited",HttpStatus.OK);
+    public ResponseEntity<String> editGroup(@PathVariable int app_group_id,@RequestBody EditGroupDto editGroupDto){
+        adminService.editGroup(app_group_id,editGroupDto);
+        return new ResponseEntity<>("Group edited",HttpStatus.OK);
     }
     @DeleteMapping("/lock-lesson/{lockLesson_id}")
     public ResponseEntity<String> deleteLockLesson(@PathVariable int lockLesson_id){
         lessonService.deleteLockLesson(lockLesson_id);
-        return new ResponseEntity<>("DeleteLockLesson success",HttpStatus.OK);
+        return new ResponseEntity<>("Delete LockLesson success",HttpStatus.OK);
     }
     @DeleteMapping("/delete-lesson/{lesson_id}")
     public ResponseEntity<String> deleteLesson(@PathVariable int lesson_id){
@@ -256,11 +218,16 @@ public class AdminController {
     @DeleteMapping("/delete-group/{app_group_id}")
     public ResponseEntity<String> deleteGroup(@PathVariable int app_group_id){
         adminService.deleteGroup(app_group_id);
-        return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
+        return new ResponseEntity<>("Delete Group success",HttpStatus.OK);
     }
     @DeleteMapping("/delete-room/{room_id}")
     public ResponseEntity<String> deleteRoom(@PathVariable int room_id){
         adminService.deleteRoom(room_id);
         return new ResponseEntity<>("Delete Room success",HttpStatus.OK);
+    }
+    @DeleteMapping("/delete-subject/{subject_id}")
+    public ResponseEntity<String> deleteSubject(@PathVariable int subject_id){
+        adminService.deleteSubject(subject_id);
+        return new ResponseEntity<>("Delete Subject success",HttpStatus.OK);
     }
 }

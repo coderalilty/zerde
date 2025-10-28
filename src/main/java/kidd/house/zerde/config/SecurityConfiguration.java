@@ -39,12 +39,11 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults()) // включаем CORS
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
-                                "/api/v1/signup-lesson/**",
-                                "/api/v2/signup-lesson/**",
                                 "/api/v1/auth/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/api/v1/trial/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyAuthority(Authorities.ADMIN.name())
                         .requestMatchers("/api/v1/teacher/**").hasAnyAuthority(Authorities.TEACHER.name())

@@ -21,12 +21,6 @@ class LessonServiceTest {
     private LockedSlotRepo lockedSlotRepo;
 
     @Test
-    void getAllLessons() {
-        lessonService.getAllLessons();
-        Mockito.verify(lessonRepo, Mockito.times(1)).findAll();
-    }
-
-    @Test
     void findById() {
         lessonService.findById(1);
         Mockito.verify(lessonRepo, Mockito.times(1)).findById(1);

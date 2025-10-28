@@ -3,7 +3,6 @@ package kidd.house.zerde.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
-import kidd.house.zerde.dto.schedule.*;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.service.AdminService;
@@ -24,7 +23,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Collection;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,67 +45,6 @@ class AdminControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(adminController).build();
         objectMapper = new ObjectMapper();
     }
-
-    @Test//get
-    void schedule() throws Exception{
-        TeacherDto teacherDto = new TeacherDto("Gregory");
-        ParentDto parentDto = new ParentDto(
-                "trg",
-                "6596590",
-                "g3g5@gmail.com"
-        );
-        ChildDto child = new ChildDto("grh",parentDto);
-        List<ChildDto> children = List.of(child);
-        RoomDto roomDto = new RoomDto("202");
-        LessonDto lessonDto = new LessonDto(
-                teacherDto,
-                children,
-                "10:00",
-                "11:00",
-                roomDto
-        );
-        List<LessonDto> lessonDtos = List.of(lessonDto);
-
-        when(lessonService.getAllLessons()).thenReturn(lessonDtos);
-
-        mockMvc.perform(get("/api/v1/admin/first-visit-schedule")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        verify(lessonService,times(1)).getAllLessons();
-    }
-
-    @Test//get
-    void weekSchedule() throws Exception {
-        // --- Подготовка данных ---
-        TeacherDto teacherDto = new TeacherDto("Gregory");
-        ParentDto parentDto = new ParentDto("Anna", "87021234567", "anna@example.com");
-        ChildDto childDto = new ChildDto("Misha", parentDto);
-        List<ChildDto> children = List.of(childDto);
-        RoomDto roomDto = new RoomDto("101");
-
-        LessonDto lessonDto = new LessonDto(
-                teacherDto,
-                children,
-                "09:00",
-                "10:00",
-                roomDto
-        );
-        List<LessonDto> lessonDtos = List.of(lessonDto);
-
-        // --- Мокаем зависимые вызовы ---
-        Mockito.when(lessonService.getAllLessons()).thenReturn(lessonDtos);
-        Mockito.when(lessonMapper.getLessonTime()).thenReturn("Понедельник");
-
-        // --- Выполняем запрос ---
-        mockMvc.perform(get("/api/v1/admin/week-schedule")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        // --- Проверяем, что моки были вызваны ---
-        verify(lessonMapper, times(1)).getLessonTime();
-    }
-
     @Test//
     void lockLesson() throws Exception {
         LockLessonRequest lockLessonRequest = new LockLessonRequest("10:00","10:30","202");
@@ -120,52 +59,6 @@ class AdminControllerTest {
 
     @Test//
     void sendNotification() {
-//        Parent parent = new Parent();
-//        parent.setParentName("Gregory");
-//        parent.setParentPhone("+77788136226");
-//        parent.setParentEmail("elzat.sayatov.3@gmail.com");
-//
-//        Child child = new Child();
-//        child.setFirstName("Petya");
-//        child.setAge(12);
-//        child.setParent(parent);
-//
-//        Room room = new Room();
-//        room.setName("202");
-//
-//        Lesson lesson = new Lesson();
-//        lesson.setLessonName("bukva b");
-//        lesson.setFrom("10:00");
-//        lesson.setTo("10:30");
-//        lesson.setId(1);
-//        lesson.setGroupType("GROUP");
-//        lesson.setLessonDay("2025.06.17");
-//        child.setLesson(lesson);
-//        lesson.getChildren().add(child);
-//        lesson.setRoom(room);
-//        String message = String.format(
-//                "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
-//                child.getFirstName(),
-//                "Gregory",
-//                lesson.getFrom(),
-//                lesson.getTo(),
-//                room.getName()
-//        );
-//
-//        NotificationRequestDto notificationRequestDto = new NotificationRequestDto(lesson.getId());
-//        String value = objectMapper.writeValueAsString(notificationRequestDto);
-//
-//        mockMvc.perform(post("/api/v1/admin/send-notification")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(value))
-//                .andExpect(status().isOk());
-//        verify(lessonService,times(1)).findById(lesson.getId());
-//        verify(lessonMapper,times(1)).getChildFirstName(lesson);
-//        verify(emailKafkaProducer, times(1)).sendEmail(new EmailMessageDto(
-//                parent.getParentEmail(),
-//                "Напоминание о предстоящем уроке",
-//                message
-//        ));
     }
 
     @Test//get
@@ -454,17 +347,19 @@ class AdminControllerTest {
         Group group = new Group();
         group.setId(1);
 
-        CreateGroupDto createGroupDto = new CreateGroupDto("gtg2150");
+        // Новый DTO теперь принимает и имя группы, и список ID детей
+        EditGroupDto editGroupDto = new EditGroupDto("gtg2150", List.of(1, 2, 3));
 
-        String value = objectMapper.writeValueAsString(createGroupDto);
+        String value = objectMapper.writeValueAsString(editGroupDto);
 
-        mockMvc.perform(put("/api/v1/admin/edit-group/{app_group_id}",group.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(value))
+        mockMvc.perform(put("/api/v1/admin/edit-group/{app_group_id}", group.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(value))
                 .andExpect(status().isOk());
 
-        verify(adminService,times(1)).editGroup(group.getId(),createGroupDto);
+        verify(adminService, times(1)).editGroup(group.getId(), editGroupDto);
     }
+
 
     @Test
     void deleteLockLesson() throws Exception {
@@ -526,5 +421,16 @@ class AdminControllerTest {
                 .andExpect(status().isOk());
 
         verify(adminService,times(1)).deleteGroup(group.getId());
+    }
+    @Test
+    void deleteSubject() throws Exception{
+        Subject subject = new Subject();
+        subject.setId(1);
+
+        mockMvc.perform(delete("/api/v1/admin/delete-subject/{subject_id}",subject.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk());
+
+        verify(adminService,times(1)).deleteSubject(subject.getId());
     }
 }
