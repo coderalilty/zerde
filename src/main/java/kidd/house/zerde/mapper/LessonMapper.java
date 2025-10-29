@@ -12,7 +12,7 @@ import java.util.List;
 public class LessonMapper {
     public List<ChildDto> getChildFirstName(Lesson lesson) {
         // 👇 Преобразуем всех детей в ChildDto
-        return lesson.getChildren().stream()
+        return lesson.getGroup().getChildren().stream()
                 .map(child -> new ChildDto(
                         child.getFirstName(),
                         new ParentDto(

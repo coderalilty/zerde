@@ -10,4 +10,6 @@ import java.util.List;
 public interface ChildRepo extends JpaRepository<Child,Integer> {
     List<Child> findByLessonId(int lessonId);
     Child findById(int child_id);
+
+    List<Child> findByGroupId(int groupId);
 }

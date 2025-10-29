@@ -176,7 +176,8 @@ public class AdminService {
         );
     }
     public List<ChildDtos> getChildrenByLessonId(int lessonId){
-        List<Child> children = childRepo.findByLessonId(lessonId);
+        Lesson lesson = lessonRepo.findById(lessonId);
+        List<Child> children = childRepo.findByGroupId(lesson.getGroup().getId());
         return toDtoListChild(children);
     }
     private List<ChildDtos> toDtoListChild(List<Child> children) {

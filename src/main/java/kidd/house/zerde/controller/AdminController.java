@@ -131,13 +131,13 @@ public class AdminController {
                 "Gregory",
                 lesson.getFrom(),
                 lesson.getTo(),
-                "202"
+                lesson.getRoom().getName()
         );
         try {
             // Отправка email родителю, если указан email
-            if (lesson.getChildren().get(0).getParent().getParentEmail() != null) {
+            if (lesson.getGroup().getChildren().get(0).getParent().getParentEmail() != null) {
                 mailSenderService.send(
-                        lesson.getChildren().get(0).getParent().getParentEmail(),
+                        lesson.getGroup().getChildren().get(0).getParent().getParentEmail(),
                         "Напоминание о предстоящем уроке",
                         message
                 );

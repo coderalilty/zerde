@@ -25,9 +25,6 @@ public class Child {
     @JoinColumn(name = "parents_id",referencedColumnName = "id")
     private Parent parent;
     @ManyToOne
-    @JoinColumn(name = "lessons_id",referencedColumnName = "id")
-    private Lesson lesson;
-    @ManyToOne
     @JoinColumn(name = "app_groups_id",referencedColumnName = "id")
     private Group group;
 }

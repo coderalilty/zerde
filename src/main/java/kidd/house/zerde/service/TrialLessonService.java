@@ -2,10 +2,12 @@ package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.model.entity.Child;
+import kidd.house.zerde.model.entity.Group;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.Parent;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.LessonType;
+import kidd.house.zerde.repo.GroupRepo;
 import kidd.house.zerde.repo.LessonRepo;
 import kidd.house.zerde.repo.ParentRepo;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,18 @@ public class TrialLessonService {
     private LessonRepo lessonRepo;
     @Autowired
     private ParentRepo parentRepo;
+    @Autowired
+    private GroupRepo groupRepo;
     public void createTrialLesson(TemporaryLessonDto temporaryLessonDto) {
         Child child = new Child();
         child.setFirstName(temporaryLessonDto.childName());
         child.setAge(temporaryLessonDto.childAge());
         List<Child> children = List.of(child);
+
+        Group group = new Group();
+        group.setName("trial");
+        group.setChildren(children);
+        groupRepo.save(group);
 
         Parent parent = new Parent();
         parent.setParentName(temporaryLessonDto.parentName());
@@ -38,7 +47,7 @@ public class TrialLessonService {
         parentRepo.save(parent);
 
         Lesson lesson = new Lesson();
-        lesson.setChildren(children);
+        lesson.setGroup(group);
         lesson.setFrom(temporaryLessonDto.createTimeFrom());
         lesson.setTo(temporaryLessonDto.createTimeTo());
         lesson.setGroupType("GROUP");

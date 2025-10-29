@@ -31,8 +31,6 @@ public class Lesson {
     private LessonStatus lessonStatus;
     @Column(name = "group_type")
     private String groupType;
-    @OneToMany(mappedBy = "lesson",cascade = CascadeType.ALL)
-    private List<Child> children = new ArrayList<>();
     @OneToOne
     @JoinColumn(name = "subjects_id")
     private Subject subject;
