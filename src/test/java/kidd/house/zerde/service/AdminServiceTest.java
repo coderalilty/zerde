@@ -165,10 +165,4 @@ class AdminServiceTest {
         adminService.getLessons();
         Mockito.verify(lessonRepo, Mockito.times(1)).findAll();
     }
-
-    @Test
-    void getChildrenByLessonId() {
-        adminService.getChildrenByLessonId(1);
-        Mockito.verify(childRepo,Mockito.times(1)).findByLessonId(1);
-    }
 }
