@@ -7,7 +7,10 @@ import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AdminService {
     @Autowired
@@ -336,8 +340,32 @@ public class AdminService {
     }
 
     public void deleteTeacher(int teacherId) {
+        User userToDelete = userRepo.findById(teacherId);
+
+        // Получаем текущего аутентифицированного пользователя
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        // Проверка 1: нельзя удалить самого себя
+        if (userToDelete.getUsername().equals(currentUsername)) {
+            log.warn("Нельзя удалить самого себя");
+            return;
+        }
+
+        // Проверка 2: нельзя удалить администратора
+        boolean isAdmin = userToDelete.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+        if (isAdmin) {
+            log.warn("Нельзя удалить администратора");
+            return;
+        }
+
+        // Если проверки пройдены — удаляем
         userRepo.deleteById(teacherId);
+        log.info("Пользователь с ID {} успешно удален", teacherId);
     }
+
 
     public void editSubject(int subjectId, CreateSubjectDto createSubjectDto) {
         Subject subject = subjectRepo.findById(subjectId);
