@@ -25,7 +25,7 @@ public class AdminController {
     private final LessonMapper lessonMapper;
     private final MailSenderService mailSenderService;
     private final AdminService adminService;
-    @GetMapping("/lessons")
+    @GetMapping("/permanent_lessons")
     public ResponseEntity<List<LessonDtos>> getAllLessons(){
         List<LessonDtos> lessons = adminService.getLessons();
        return ResponseEntity.ok(lessons);

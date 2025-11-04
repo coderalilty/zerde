@@ -159,7 +159,7 @@ public class AdminService {
         System.out.println("Отправлено уведомление родителям: " + childNames);
     }
     public List<LessonDtos> getLessons(){
-        List<Lesson> lessons = lessonRepo.findAll();
+        List<Lesson> lessons = lessonRepo.findAllByLessonType(LessonType.PERMANENT);
         return toDtoListLesson(lessons);
     }
     private List<LessonDtos> toDtoListLesson(List<Lesson> lessons) {
