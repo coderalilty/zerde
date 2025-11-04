@@ -4,6 +4,7 @@ import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.ChildDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
+import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.AdminService;
@@ -28,6 +29,11 @@ public class AdminController {
     public ResponseEntity<List<LessonDtos>> getAllLessons(){
         List<LessonDtos> lessons = adminService.getLessons();
        return ResponseEntity.ok(lessons);
+    }
+    @GetMapping("/trail_lesson")
+    public ResponseEntity<List<TemporaryLessonDto>> getTrailLesson(){
+        List<TemporaryLessonDto> temporaryLessonDto = adminService.getTrailLesson();
+        return ResponseEntity.ok(temporaryLessonDto);
     }
     @GetMapping("/lessons/{lessonId}/children")
     public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Integer lessonId){

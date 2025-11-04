@@ -1,6 +1,7 @@
 package kidd.house.zerde.repo;
 
 import kidd.house.zerde.model.entity.Lesson;
+import kidd.house.zerde.model.type.LessonType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,5 @@ public interface LessonRepo extends JpaRepository<Lesson,Integer> {
             String to,
             String roomName);
     Lesson findById(int lessonId);
+    List<Lesson> findAllByLessonType(LessonType lessonType);
 }

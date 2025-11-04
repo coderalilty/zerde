@@ -1,6 +1,7 @@
 package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.*;
+import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
@@ -409,4 +410,45 @@ public class AdminService {
     public void deleteSubject(int subjectId) {
         subjectRepo.deleteById(subjectId);
     }
+
+    public List<TemporaryLessonDto> getTrailLesson() {
+        return lessonRepo.findAllByLessonType(LessonType.TRIAL)
+                .stream()
+                .map(this::toDtoTrialLesson)
+                .toList();
+    }
+
+
+    private TemporaryLessonDto toDtoTrialLesson(Lesson lesson) {
+        String childNames = lesson.getGroup().getChildren().stream()
+                .map(Child::getFirstName)
+                .collect(Collectors.joining(", "));
+
+        String parentNames = lesson.getGroup().getChildren().stream()
+                .map(c -> c.getParent().getParentName())
+                .collect(Collectors.joining(", "));
+
+        String parentPhones = lesson.getGroup().getChildren().stream()
+                .map(c -> c.getParent().getParentPhone())
+                .collect(Collectors.joining(", "));
+
+        String parentEmails = lesson.getGroup().getChildren().stream()
+                .map(c -> c.getParent().getParentEmail())
+                .collect(Collectors.joining(", "));
+
+        List<Integer> ages = lesson.getGroup().getChildren().stream()
+                .map(Child::getAge)
+                .toList();
+
+        return new TemporaryLessonDto(
+                childNames,
+                ages,
+                parentNames,
+                parentPhones,
+                parentEmails,
+                lesson.getFrom(),
+                lesson.getTo()
+        );
+    }
+
 }
