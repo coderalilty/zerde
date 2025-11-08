@@ -21,12 +21,12 @@ public interface LockedSlotRepo extends JpaRepository<LockedSlot,Integer> {
             @Param("lockedTo") String lockedTo,
             @Param("roomName") String roomName
     );
-    @Query("""
-        SELECT l FROM LockedSlot l 
-        WHERE MONTH(STR_TO_DATE(l.lessonDay, '%Y-%m-%d')) = :month 
-          AND YEAR(STR_TO_DATE(l.lessonDay, '%Y-%m-%d')) = :year
-          AND l.roomName = :roomName
-    """)
+    @Query(value = """
+        SELECT * FROM locked_slots 
+        WHERE MONTH(STR_TO_DATE(lesson_day, '%Y-%m-%d')) = :month 
+          AND YEAR(STR_TO_DATE(lesson_day, '%Y-%m-%d')) = :year
+          AND room_name = :roomName
+    """, nativeQuery = true)
     List<LockedSlot> findByYearAndMonthAndRoom(
             @Param("year") int year,
             @Param("month") int month,
