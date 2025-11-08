@@ -1,5 +1,5 @@
 # Используем базовый образ OpenJDK
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-jdk-bookworm
 
 # Устанавливаем рабочую директорию в контейнере
 WORKDIR /app

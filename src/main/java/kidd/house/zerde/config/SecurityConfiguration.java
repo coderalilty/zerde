@@ -82,7 +82,8 @@ public class SecurityConfiguration {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",     // фронт из IDE
                 "http://127.0.0.1:3000",    // фронт из Docker, иногда использует этот адрес
-                "http://192.168.1.110:3000" // 🔥 твой реальный IP, если фронт заходит по сети
+                "http://192.168.1.110:3000", // 🔥 твой реальный IP, если фронт заходит по сети
+                "http://127.0.0.1:5500"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*")); // Разрешаем все заголовки
