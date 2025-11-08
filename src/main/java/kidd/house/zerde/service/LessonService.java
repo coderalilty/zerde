@@ -2,11 +2,15 @@ package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.LessonDtos;
 import kidd.house.zerde.dto.adminDto.LockLessonDto;
+import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
+import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.LockedSlot;
 import kidd.house.zerde.model.status.LessonStatus;
+import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.LessonRepo;
 import kidd.house.zerde.repo.LockedSlotRepo;
+import kidd.house.zerde.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,15 +24,17 @@ public class LessonService {
     private LessonRepo lessonRepo;
     @Autowired
     private LockedSlotRepo lockedSlotRepo;
+    @Autowired
+    private UserRepo userRepo;
     public Lesson findById(int lessonId) {
         return lessonRepo.findById(lessonId);
     }
-    public List<Lesson> findLessonsBetween(String from,String to,String roomName){
-        return lessonRepo.findByFromAndToAndRoom_Name(from,to,roomName);
+    public List<Lesson> findLessonsBetween(String lessonDay,String from,String to,String roomName){
+        return lessonRepo.findByLessonDayAndFromAndToAndRoom_Name(lessonDay,from,to,roomName);
     }
-    public void lockLesson(String lockDateTimeFrom, String lockDateTimeTo, String roomName) {
+    public void lockLesson(String lockLessonDay,String lockDateTimeFrom, String lockDateTimeTo, String roomName) {
         List<Lesson> existingLessons = findLessonsBetween(
-                lockDateTimeFrom, lockDateTimeTo, roomName);
+                lockLessonDay, lockDateTimeFrom, lockDateTimeTo, roomName);
 
         if (!existingLessons.isEmpty()) {
             throw new IllegalStateException("В указанное время уже есть уроки");
@@ -36,7 +42,7 @@ public class LessonService {
 
         // 2. Проверка: нет ли уже заглушки
         List<LockedSlot> lockedSlots = lockedSlotRepo
-                .findLockedBetween(lockDateTimeFrom, lockDateTimeTo, roomName);
+                .findLockedBetween(lockLessonDay,lockDateTimeFrom, lockDateTimeTo, roomName);
 
         if (!lockedSlots.isEmpty()) {
             throw new IllegalStateException("Уже стоит заглушка на это время");
@@ -44,6 +50,7 @@ public class LessonService {
 
         // 3. Сохранение заглушки
         LockedSlot slot = new LockedSlot();
+        slot.setLessonDay(lockLessonDay);
         slot.setLockedFrom(lockDateTimeFrom);
         slot.setLockedTo(lockDateTimeTo);
         slot.setRoomName(roomName);
@@ -104,5 +111,35 @@ public class LessonService {
         lesson.setLessonStatus(LessonStatus.EDITED);
 
         lessonRepo.save(lesson);
+    }
+
+    public List<TemporaryLessonDto> getTrialLesson(int userId) {
+        List<Lesson> trialLessons = lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, userId);
+        return trialLessons.stream()
+                .map(this::mapToTemporaryLessonDto)
+                .toList();
+    }
+
+    private TemporaryLessonDto mapToTemporaryLessonDto(Lesson lesson) {
+        return new TemporaryLessonDto(
+                lesson.getGroup().getChildren().stream()
+                        .map(Child::getFirstName)
+                        .toString(),
+                lesson.getGroup().getChildren().stream()
+                        .map(Child::getAge)
+                        .toArray().length,
+                lesson.getGroup().getChildren().stream()
+                        .map(c -> c.getParent().getParentName())
+                        .toString(),
+                lesson.getGroup().getChildren().stream()
+                        .map(c -> c.getParent().getParentPhone())
+                        .toString(),
+                lesson.getGroup().getChildren().stream()
+                        .map(c -> c.getParent().getParentEmail())
+                        .toString(),
+                lesson.getLessonDay(),
+                lesson.getFrom(),
+                lesson.getTo()
+        );
     }
 }

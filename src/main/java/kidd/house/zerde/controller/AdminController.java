@@ -4,7 +4,7 @@ import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
 import kidd.house.zerde.dto.schedule.ChildDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
-import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
+import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
 import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.AdminService;
@@ -31,9 +31,9 @@ public class AdminController {
        return ResponseEntity.ok(lessons);
     }
     @GetMapping("/trail_lesson")
-    public ResponseEntity<List<TemporaryLessonDto>> getTrailLesson(){
-        List<TemporaryLessonDto> temporaryLessonDto = adminService.getTrailLesson();
-        return ResponseEntity.ok(temporaryLessonDto);
+    public ResponseEntity<List<TemporaryLessonDtos>> getTrailLesson(){
+        List<TemporaryLessonDtos> temporaryLessonDtos = adminService.getTrailLesson();
+        return ResponseEntity.ok(temporaryLessonDtos);
     }
     @GetMapping("/lessons/{lessonId}/children")
     public ResponseEntity<List<ChildDtos>> getChildList(@PathVariable Integer lessonId){
@@ -64,11 +64,6 @@ public class AdminController {
     public ResponseEntity<List<ListGroupsDto>> getGroups(){
         List<ListGroupsDto> groups = adminService.getGroups();
         return ResponseEntity.ok(groups);
-    }
-    @GetMapping("/lock-lesson")
-    public ResponseEntity<List<LockLessonDto>> getLockLesson(){
-        List<LockLessonDto> lockLesson = lessonService.getLockLesson();
-        return  ResponseEntity.ok(lockLesson);
     }
     @GetMapping("/profile")
     public ResponseEntity<List<AdminProfileDto>> getAdminProfiles(){
@@ -108,12 +103,12 @@ public class AdminController {
     }
     @PostMapping("/lock-lesson")
     public ResponseEntity<String> lockLesson(@RequestBody LockLessonRequest lockLessonRequest) {
-
+        String lockLessonDay = lockLessonRequest.lockLessonDay();
         String lockDateTimeFrom = lockLessonRequest.lockDateTimeFrom();
         String lockDateTimeTo = lockLessonRequest.lockDateTimeTo();
         String roomName = lockLessonRequest.roomName();
         // 1. Проверка: есть ли уроки в указанное время
-        lessonService.lockLesson(lockDateTimeFrom, lockDateTimeTo, roomName);
+        lessonService.lockLesson(lockLessonDay,lockDateTimeFrom, lockDateTimeTo, roomName);
 
         return new ResponseEntity<>("Lesson locked successfully for room ID " + roomName
                 + " from " + lockDateTimeFrom + " to " + lockDateTimeTo, HttpStatus.OK);

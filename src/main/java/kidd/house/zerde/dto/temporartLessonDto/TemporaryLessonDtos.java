@@ -1,8 +1,10 @@
 package kidd.house.zerde.dto.temporartLessonDto;
 
-public record TemporaryLessonDto(
+import java.util.List;
+
+public record TemporaryLessonDtos(
         String childName,
-        Integer childAge,
+        List<Integer> childAge,
         String parentName,
         String parentPhone,
         String parentEmail,

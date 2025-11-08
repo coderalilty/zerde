@@ -6,6 +6,7 @@ import kidd.house.zerde.dto.adminDto.CreateSubjectDto;
 import kidd.house.zerde.model.entity.Group;
 import kidd.house.zerde.model.entity.Room;
 import kidd.house.zerde.model.entity.Subject;
+import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -163,6 +164,6 @@ class AdminServiceTest {
     @Test
     void getLessons() {
         adminService.getLessons();
-        Mockito.verify(lessonRepo, Mockito.times(1)).findAll();
+        Mockito.verify(lessonRepo, Mockito.times(1)).findAllByLessonType(LessonType.PERMANENT);
     }
 }

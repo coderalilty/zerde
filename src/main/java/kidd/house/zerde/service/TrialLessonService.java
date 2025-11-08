@@ -48,6 +48,7 @@ public class TrialLessonService {
 
         Lesson lesson = new Lesson();
         lesson.setGroup(group);
+        lesson.setLessonDay(temporaryLessonDto.lessonDay());
         lesson.setFrom(temporaryLessonDto.createTimeFrom());
         lesson.setTo(temporaryLessonDto.createTimeTo());
         lesson.setGroupType("GROUP");

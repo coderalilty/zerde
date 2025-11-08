@@ -10,10 +10,12 @@ import java.util.List;
 
 @Repository
 public interface LessonRepo extends JpaRepository<Lesson,Integer> {
-    List<Lesson> findByFromAndToAndRoom_Name(
+    List<Lesson> findByLessonDayAndFromAndToAndRoom_Name(
+            String lessonDay,
             String from,
             String to,
             String roomName);
     Lesson findById(int lessonId);
     List<Lesson> findAllByLessonType(LessonType lessonType);
+    List<Lesson> findAllByLessonTypeAndUserId(LessonType lessonType, Integer userId);
 }

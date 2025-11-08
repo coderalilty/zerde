@@ -10,6 +10,8 @@ public class LockedSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "lesson_day")
+    private String lessonDay;
     @Column(name = "room_name")
     private String roomName;
     @Column(name = "locked_from")

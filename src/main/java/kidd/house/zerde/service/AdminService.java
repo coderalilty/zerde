@@ -1,7 +1,7 @@
 package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.*;
-import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
+import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
@@ -93,6 +93,7 @@ public class AdminService {
 
     public void createNewLesson(CreateLessonDto createLessonDto) {
         Lesson lesson = new Lesson();
+        lesson.setLessonDay(createLessonDto.lessonDay());
         lesson.setFrom(createLessonDto.createLessonFrom());
         lesson.setTo(createLessonDto.createLessonTo());
         lesson.setGroupType(createLessonDto.groupType());
@@ -112,6 +113,7 @@ public class AdminService {
             // Проверка: нет ли уже заглушки
             List<LockedSlot> lockedSlots = lockedSlotRepo
                     .findLockedBetween(
+                            lesson.getLessonDay(),
                             lesson.getFrom(),
                             lesson.getTo(),
                             lesson.getRoom().getName()
@@ -121,7 +123,7 @@ public class AdminService {
                 throw new IllegalStateException("Уже стоит индеведуальный урок на это время!");
             }
         } else if (createLessonDto.groupType().equals("INDIVIDUAL")) {
-            lessonService.lockLesson(lesson.getFrom(), lesson.getTo(), lesson.getRoom().getName());
+            lessonService.lockLesson(lesson.getLessonDay(),lesson.getFrom(), lesson.getTo(), lesson.getRoom().getName());
         }
         lessonRepo.save(lesson);
     }
@@ -411,7 +413,7 @@ public class AdminService {
         subjectRepo.deleteById(subjectId);
     }
 
-    public List<TemporaryLessonDto> getTrailLesson() {
+    public List<TemporaryLessonDtos> getTrailLesson() {
         return lessonRepo.findAllByLessonType(LessonType.TRIAL)
                 .stream()
                 .map(this::toDtoTrialLesson)
@@ -419,7 +421,7 @@ public class AdminService {
     }
 
 
-    private TemporaryLessonDto toDtoTrialLesson(Lesson lesson) {
+    private TemporaryLessonDtos toDtoTrialLesson(Lesson lesson) {
         String childNames = lesson.getGroup().getChildren().stream()
                 .map(Child::getFirstName)
                 .collect(Collectors.joining(", "));
@@ -440,12 +442,13 @@ public class AdminService {
                 .map(Child::getAge)
                 .toList();
 
-        return new TemporaryLessonDto(
+        return new TemporaryLessonDtos(
                 childNames,
                 ages,
                 parentNames,
                 parentPhones,
                 parentEmails,
+                lesson.getLessonDay(),
                 lesson.getFrom(),
                 lesson.getTo()
         );
