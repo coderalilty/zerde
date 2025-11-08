@@ -1,6 +1,7 @@
 package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.adminDto.LockLessonDto;
+import kidd.house.zerde.dto.temporartLessonDto.CalendarDayDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.service.LessonService;
 import kidd.house.zerde.service.TrialLessonService;
@@ -26,6 +27,15 @@ public class TrialLessonsPanelController {
     public ResponseEntity<List<TemporaryLessonDto>> getTrialLesson(@PathVariable Integer userId){
         List<TemporaryLessonDto> temporaryLessonDto = lessonService.getTrialLesson(userId);
         return ResponseEntity.ok(temporaryLessonDto);
+    }
+    @GetMapping("/get_calendar")
+    public ResponseEntity<List<CalendarDayDto>> getCalendar(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam String roomName
+    ) {
+        List<CalendarDayDto> calendar = lessonService.getCalendar(year, month, roomName);
+        return ResponseEntity.ok(calendar);
     }
     @PostMapping("/create_trial_lesson")
     public ResponseEntity<String> create_trial_lesson(@RequestBody TemporaryLessonDto temporaryLessonDto){

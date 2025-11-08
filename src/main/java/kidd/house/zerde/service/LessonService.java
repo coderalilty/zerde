@@ -2,6 +2,7 @@ package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.LessonDtos;
 import kidd.house.zerde.dto.adminDto.LockLessonDto;
+import kidd.house.zerde.dto.temporartLessonDto.CalendarDayDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Lesson;
@@ -15,7 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +147,20 @@ public class LessonService {
                 lesson.getFrom(),
                 lesson.getTo()
         );
+    }
+
+    public List<CalendarDayDto> getCalendar(int year, int month, String roomName) {
+        YearMonth ym = YearMonth.of(year, month);
+        List<LockedSlot> lockedSlots = lockedSlotRepo.findByYearAndMonthAndRoom(year, month, roomName);
+
+        // Собираем все заблокированные дни
+        Set<Integer> lockedDays = lockedSlots.stream()
+                .map(slot -> LocalDate.parse(slot.getLessonDay()).getDayOfMonth())
+                .collect(Collectors.toSet());
+
+        // Генерация календаря
+        return IntStream.rangeClosed(1, ym.lengthOfMonth())
+                .mapToObj(day -> new CalendarDayDto(day, !lockedDays.contains(day)))
+                .toList();
     }
 }
