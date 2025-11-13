@@ -18,4 +18,6 @@ public interface LessonRepo extends JpaRepository<Lesson,Integer> {
     Lesson findById(int lessonId);
     List<Lesson> findAllByLessonType(LessonType lessonType);
     List<Lesson> findAllByLessonTypeAndUserId(LessonType lessonType, Integer userId);
+
+    List<Lesson> findAllByUserId(int userId);
 }

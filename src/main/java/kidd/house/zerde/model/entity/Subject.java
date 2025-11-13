@@ -15,6 +15,8 @@ public class Subject {
     private int id;
     @Column(name = "name")
     private String name;
+    @OneToMany(mappedBy = "subject")
+    private List<Task> tasks;
     @ManyToMany
     @JoinTable(name = "teacher_subjects",joinColumns = @JoinColumn(name = "subjects_id"),
             inverseJoinColumns = @JoinColumn(name = "users_id"))

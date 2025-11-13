@@ -1,12 +1,11 @@
 package kidd.house.zerde.model.entity;
 
 import jakarta.persistence.*;
+import kidd.house.zerde.dto.schedule.LessonMark;
+import kidd.house.zerde.dto.schedule.LessonMark2;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.LessonType;
 import lombok.Data;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -26,11 +25,25 @@ public class Lesson {
     @Column(name = "lesson_type")
     @Enumerated(EnumType.STRING)
     private LessonType lessonType;
+
     @Column(name = "lesson_status")
     @Enumerated(EnumType.STRING)
     private LessonStatus lessonStatus;
+
     @Column(name = "group_type")
     private String groupType;
+
+    @Column(name = "lesson_mark")
+    @Enumerated(EnumType.STRING)
+    private LessonMark lessonMark;
+
+    @Column(name = "lesson_mark_2")
+    @Enumerated(EnumType.STRING)
+    private LessonMark2 lessonMark2;
+
+    @OneToOne
+    @JoinColumn(name = "document_id")
+    private Document document;
     @OneToOne
     @JoinColumn(name = "subjects_id")
     private Subject subject;

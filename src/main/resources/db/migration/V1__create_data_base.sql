@@ -38,11 +38,14 @@ CREATE TABLE IF NOT EXISTS `lessons` (
                                          `group_type` varchar(255) DEFAULT NULL,
                                          `lesson_status` enum('CANCELLED','COMPLETED','RESERVED','SCHEDULED','EDITED','TEMPORARY') DEFAULT NULL,
                                          `lesson_type` enum('PERMANENT','TRIAL') DEFAULT NULL,
+                                         `lesson_mark` enum('CAME','NOTCOME') DEFAULT NULL,
+                                         `lesson_mark_2` enum('FORaREASON','WITHOUTaREASON') DEFAULT NULL,
                                          `update_date` varchar(255) DEFAULT NULL,
                                          `rooms_id` int DEFAULT NULL,
                                          `subjects_id` int DEFAULT NULL,
                                          `users_id` int DEFAULT NULL,
-                                         `app_groups_id` int DEFAULT NULL
+                                         `app_groups_id` int DEFAULT NULL,
+                                         `document_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -133,4 +136,19 @@ CREATE TABLE IF NOT EXISTS locked_slots (
                                             room_name varchar(255) NOT NULL,
                                             locked_from varchar(255) NOT NULL,
                                             locked_to varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS tasks (
+                                            id int auto_increment primary key,
+                                            task_name varchar(255) NOT NULL,
+                                            youtube_url varchar(255) NOT NULL,
+                                            task_text varchar(255) NOT NULL,
+                                            task_photo_url varchar(255) NOT NULL,
+                                            task_audio varchar(255) NOT NULL,
+                                            subjects_id int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS documents (
+                                            id int auto_increment primary key,
+                                            document_name varchar(255) DEFAULT NULL,
+                                            file_path varchar(255) DEFAULT NULL,
+                                            upload_date datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

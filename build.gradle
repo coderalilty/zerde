@@ -43,6 +43,8 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:5.1.1'
 
     implementation 'org.springframework.kafka:spring-kafka:4.0.0-M2'
+
+    implementation 'com.itextpdf:itextpdf:5.5.13.4'
 }
 
 tasks.named('test') {
