@@ -2,9 +2,6 @@ package kidd.house.zerde.service.impl;
 
 import kidd.house.zerde.dto.registration.JwtAuthenticationResponce;
 import kidd.house.zerde.dto.registration.SignInRequest;
-import kidd.house.zerde.dto.registration.SignUpRequest;
-import kidd.house.zerde.model.entity.User;
-import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.repo.UserRepo;
 import kidd.house.zerde.service.AuthenticationService;
 import kidd.house.zerde.service.JWTService;
@@ -21,16 +18,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
-    public User signUp(SignUpRequest signUpRequest){
-        User user = new User();
-
-        user.setEmail(signUpRequest.email());
-        user.setName(signUpRequest.name());
-        user.setAuthorities(Authorities.USER);
-        user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-
-        return userRepo.save(user);
-    }
     public JwtAuthenticationResponce signIn(SignInRequest signInRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.email(),
                 signInRequest.password()));

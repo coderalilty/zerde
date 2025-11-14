@@ -49,24 +49,6 @@ CREATE TABLE IF NOT EXISTS `lessons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
-
---
--- Структура таблицы `parents`
---
-
-CREATE TABLE IF NOT EXISTS `parents` (
-                                         `id` int auto_increment primary key,
-                                         `parent_name` varchar(255) DEFAULT NULL,
-                                         `last_name` varchar(255) DEFAULT NULL,
-                                         `parent_email` varchar(255) DEFAULT NULL,
-                                         `middle_name` varchar(255) DEFAULT NULL,
-                                         `parent_phone` varchar(255) DEFAULT NULL,
-                                         `registered_at` TIMESTAMP DEFAULT NULL,
-                                         `chat_id` BIGINT DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
 --
 -- Структура таблицы `rooms`
 --
@@ -122,7 +104,9 @@ CREATE TABLE IF NOT EXISTS `users` (
                                        `lastname` varchar(255) DEFAULT NULL,
                                        `password` varchar(255) DEFAULT NULL,
                                        `phone` varchar(255) DEFAULT NULL,
-                                       `password_temporary` BOOLEAN DEFAULT FALSE
+                                       `password_temporary` BOOLEAN DEFAULT FALSE,
+                                       `registered_at` TIMESTAMP DEFAULT NULL,
+                                       `chat_id` BIGINT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `app_groups` (

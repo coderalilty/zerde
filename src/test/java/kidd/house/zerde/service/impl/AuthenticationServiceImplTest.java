@@ -1,14 +1,11 @@
 package kidd.house.zerde.service.impl;
 
 import kidd.house.zerde.dto.registration.SignUpRequest;
-import kidd.house.zerde.model.entity.User;
-import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.repo.UserRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,18 +20,6 @@ class AuthenticationServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private AuthenticationManager authenticationManager;
-
-    @Test
-    void signUp() {
-        SignUpRequest signUpRequest = new SignUpRequest("ela","ela@gmail.com","123");
-        User user = new User();
-        user.setEmail(signUpRequest.email());
-        user.setName(signUpRequest.name());
-        user.setAuthorities(Authorities.USER);
-        user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-        authenticationService.signUp(signUpRequest);
-        Mockito.verify(userRepo,Mockito.times(1)).save(user);
-    }
 
     @Test
     void signIn() {

@@ -22,8 +22,8 @@ public class Child {
     @JoinColumn(name = "diagnoses_id",referencedColumnName = "id")
     private Diagnosis diagnosis;
     @ManyToOne
-    @JoinColumn(name = "parents_id",referencedColumnName = "id")
-    private Parent parent;
+    @JoinColumn(name = "users_id",referencedColumnName = "id")
+    private User user;
     @ManyToOne
     @JoinColumn(name = "app_groups_id",referencedColumnName = "id")
     private Group group;

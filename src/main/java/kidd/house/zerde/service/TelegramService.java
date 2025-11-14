@@ -3,7 +3,6 @@ package kidd.house.zerde.service;
 import com.vdurmont.emoji.EmojiParser;
 import kidd.house.zerde.config.TelegramBotConfig;
 import kidd.house.zerde.model.entity.Information;
-import kidd.house.zerde.model.entity.Parent;
 import kidd.house.zerde.repo.InformationRepo;
 import kidd.house.zerde.repo.ParentRepo;
 import lombok.extern.slf4j.Slf4j;

@@ -4,7 +4,7 @@ import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDto;
 import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Group;
 import kidd.house.zerde.model.entity.Lesson;
-import kidd.house.zerde.model.entity.Parent;
+import kidd.house.zerde.model.entity.User;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.GroupRepo;
@@ -39,7 +39,7 @@ public class TrialLessonService {
         group.setChildren(children);
         groupRepo.save(group);
 
-        Parent parent = new Parent();
+        User parent = new User();
         parent.setParentName(temporaryLessonDto.parentName());
         parent.setParentPhone(temporaryLessonDto.parentPhone());
         parent.setParentEmail(temporaryLessonDto.parentEmail());
