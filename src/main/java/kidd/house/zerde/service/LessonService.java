@@ -135,13 +135,13 @@ public class LessonService {
                         .map(Child::getAge)
                         .toArray().length,
                 lesson.getGroup().getChildren().stream()
-                        .map(c -> c.getParent().getParentName())
+                        .map(c -> c.getUser().getName())
                         .toString(),
                 lesson.getGroup().getChildren().stream()
-                        .map(c -> c.getParent().getParentPhone())
+                        .map(c -> c.getUser().getPhone())
                         .toString(),
                 lesson.getGroup().getChildren().stream()
-                        .map(c -> c.getParent().getParentEmail())
+                        .map(c -> c.getUser().getEmail())
                         .toString(),
                 lesson.getLessonDay(),
                 lesson.getFrom(),

@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,8 +37,6 @@ public class User implements UserDetails {
     private boolean passwordTemporary;
     @Column(name = "chat_id")
     private Long chatId;
-    @Column(name = "registered_at")
-    private Timestamp registeredAt;
     @OneToMany(mappedBy = "user")
     private List<Child> children;
     @ManyToMany

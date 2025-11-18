@@ -39,9 +39,8 @@ public class TrialLessonsPanelController {
     }
     @PostMapping("/create_trial_lesson")
     public ResponseEntity<String> create_trial_lesson(@RequestBody TemporaryLessonDto temporaryLessonDto){
-        trialLessonService.createTrialLesson(temporaryLessonDto);
-        trialLessonService.sendNotification(temporaryLessonDto);
-        return new ResponseEntity<>("Временный урок успешно сохранен!", HttpStatus.CREATED);
+        trialLessonService.createTrialLessonAndSent(temporaryLessonDto);
+        return new ResponseEntity<>("Временный урок успешно сохранен и создан аккаунт для Родителья!", HttpStatus.CREATED);
     }
 
 }

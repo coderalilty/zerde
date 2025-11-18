@@ -4,7 +4,6 @@ import kidd.house.zerde.dto.adminDto.ChangePasswordDto;
 import kidd.house.zerde.dto.registration.JwtAuthenticationResponce;
 import kidd.house.zerde.dto.registration.SignInRequest;
 import kidd.house.zerde.service.AuthenticationService;
-import kidd.house.zerde.service.ChangeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    private final ChangeService changeService;
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponce> signIn(@RequestBody SignInRequest signInRequest){
         return new ResponseEntity<>(authenticationService.signIn(signInRequest), HttpStatus.OK);
     }
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto dto) {
-        changeService.changePassword(dto);
+        authenticationService.changePassword(dto);
         return ResponseEntity.ok("Пароль успешно изменен");
     }
 }

@@ -1,7 +1,10 @@
 package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.*;
+import kidd.house.zerde.dto.schedule.ChildDto;
+import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
+import kidd.house.zerde.mapper.LessonMapper;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
@@ -46,6 +49,8 @@ public class AdminService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ChildRepo childRepo;
+    @Autowired
+    private LessonMapper lessonMapper;
     public void createNewTeacher(CreateTeacherDto createTeacherDto) {
         User user = new User();
         user.setName(createTeacherDto.name());
@@ -145,7 +150,7 @@ public class AdminService {
 
         // Получаем список email'ов родителей
         List<String> emails = group.getChildren().stream()
-                .map(c -> c.getParent().getParentEmail())
+                .map(c -> c.getUser().getEmail())
                 .filter(Objects::nonNull)
                 .toList();
 
@@ -427,15 +432,15 @@ public class AdminService {
                 .collect(Collectors.joining(", "));
 
         String parentNames = lesson.getGroup().getChildren().stream()
-                .map(c -> c.getParent().getParentName())
+                .map(c -> c.getUser().getName())
                 .collect(Collectors.joining(", "));
 
         String parentPhones = lesson.getGroup().getChildren().stream()
-                .map(c -> c.getParent().getParentPhone())
+                .map(c -> c.getUser().getPhone())
                 .collect(Collectors.joining(", "));
 
         String parentEmails = lesson.getGroup().getChildren().stream()
-                .map(c -> c.getParent().getParentEmail())
+                .map(c -> c.getUser().getEmail())
                 .collect(Collectors.joining(", "));
 
         List<Integer> ages = lesson.getGroup().getChildren().stream()
@@ -454,4 +459,52 @@ public class AdminService {
         );
     }
 
+    public void sendNotificationAll(NotificationRequestDto notificationRequest) {
+        int lessonId = notificationRequest.lessonId();
+        Lesson lesson = lessonService.findById(lessonId);
+        // Поиск урока по lessonId через сервис
+        if (lesson != null) {
+            log.warn("Lesson not found 404");
+        }
+
+        List<ChildDto> childFirstName = lessonMapper.getChildFirstName(lesson);
+
+        // Формирование сообщения
+        String message = String.format(
+                "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
+                childFirstName,
+                "Gregory",
+                lesson.getFrom(),
+                lesson.getTo(),
+                lesson.getRoom().getName()
+        );
+        try {
+            // Отправка email родителю, если указан email
+            if (lesson.getGroup().getChildren().get(0).getUser().getEmail() != null) {
+                mailSenderService.send(
+                        lesson.getGroup().getChildren().get(0).getUser().getEmail(),
+                        "Напоминание о предстоящем уроке",
+                        message
+                );
+            }
+            System.out.println("Формируемое сообщение: " + message);
+            // Отправка уведомления в Telegram, если указан номер телефона
+//            if (lesson.get().getParent().getParentPhone() != null) {
+//                String chatId = parentService.getChatId(1L);
+//                System.out.println("Полученный chatId: " + chatId);
+//                if (chatId != null) {
+//                    telegramService.sendMessageToChat(Long.valueOf(chatId),message);
+//                } else {
+//                    System.out.println("chatId не найден для телефона: " + lesson.get().getParent().getParentPhone());
+//                }
+//            } else {
+//                System.out.println("Номер телефона родителя не указан.");
+//            }
+
+        } catch (Exception e) {
+            // Логгирование ошибки
+            System.err.println("Ошибка при отправке уведомления: " + e.getMessage());
+            log.warn("Failed to send notification");
+        }
+    }
 }

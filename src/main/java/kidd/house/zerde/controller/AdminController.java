@@ -2,14 +2,10 @@ package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
-import kidd.house.zerde.dto.schedule.ChildDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
-import kidd.house.zerde.mapper.LessonMapper;
-import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.service.AdminService;
 import kidd.house.zerde.service.LessonService;
-import kidd.house.zerde.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminController {
     private final LessonService lessonService;
-    private final LessonMapper lessonMapper;
-    private final MailSenderService mailSenderService;
     private final AdminService adminService;
     @GetMapping("/permanent_lessons")
     public ResponseEntity<List<LessonDtos>> getAllLessons(){
@@ -116,54 +110,8 @@ public class AdminController {
 
     @PostMapping("/send-notification")
     public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notificationRequest) {
-        int lessonId = notificationRequest.lessonId();
-        Lesson lesson = lessonService.findById(lessonId);
-        // Поиск урока по lessonId через сервис
-        if (lesson != null) {
-            return ResponseEntity.status(404).body("Lesson not found");
-        }
-
-        List<ChildDto> childFirstName = lessonMapper.getChildFirstName(lesson);
-
-        // Формирование сообщения
-        String message = String.format(
-                "Уважаемый(ая) %s, у вас запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
-                childFirstName,
-                "Gregory",
-                lesson.getFrom(),
-                lesson.getTo(),
-                lesson.getRoom().getName()
-        );
-        try {
-            // Отправка email родителю, если указан email
-            if (lesson.getGroup().getChildren().get(0).getParent().getParentEmail() != null) {
-                mailSenderService.send(
-                        lesson.getGroup().getChildren().get(0).getParent().getParentEmail(),
-                        "Напоминание о предстоящем уроке",
-                        message
-                );
-            }
-            System.out.println("Формируемое сообщение: " + message);
-            // Отправка уведомления в Telegram, если указан номер телефона
-//            if (lesson.get().getParent().getParentPhone() != null) {
-//                String chatId = parentService.getChatId(1L);
-//                System.out.println("Полученный chatId: " + chatId);
-//                if (chatId != null) {
-//                    telegramService.sendMessageToChat(Long.valueOf(chatId),message);
-//                } else {
-//                    System.out.println("chatId не найден для телефона: " + lesson.get().getParent().getParentPhone());
-//                }
-//            } else {
-//                System.out.println("Номер телефона родителя не указан.");
-//            }
-
-        } catch (Exception e) {
-            // Логгирование ошибки
-            System.err.println("Ошибка при отправке уведомления: " + e.getMessage());
-            return ResponseEntity.status(500).body("Failed to send notification");
-        }
-
-        return ResponseEntity.ok("Notification for lesson ID " + lessonId + " sent successfully.");
+        adminService.sendNotificationAll(notificationRequest);
+        return ResponseEntity.ok("Notification for lesson ID " + notificationRequest.lessonId() + " sent successfully.");
     }
 
     @PutMapping("/edit_lesson/{lesson_id}")

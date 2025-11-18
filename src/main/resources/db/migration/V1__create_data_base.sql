@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS `children` (
                                           `last_name` varchar(255) DEFAULT NULL,
                                           `middle_name` varchar(255) DEFAULT NULL,
                                           `diagnoses_id` int DEFAULT NULL,
-                                          `parents_id` int DEFAULT NULL,
                                           `app_groups_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -105,7 +104,6 @@ CREATE TABLE IF NOT EXISTS `users` (
                                        `password` varchar(255) DEFAULT NULL,
                                        `phone` varchar(255) DEFAULT NULL,
                                        `password_temporary` BOOLEAN DEFAULT FALSE,
-                                       `registered_at` TIMESTAMP DEFAULT NULL,
                                        `chat_id` BIGINT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

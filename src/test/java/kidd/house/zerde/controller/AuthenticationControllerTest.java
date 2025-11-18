@@ -3,9 +3,7 @@ package kidd.house.zerde.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kidd.house.zerde.dto.adminDto.ChangePasswordDto;
 import kidd.house.zerde.dto.registration.SignInRequest;
-import kidd.house.zerde.dto.registration.SignUpRequest;
 import kidd.house.zerde.service.AuthenticationService;
-import kidd.house.zerde.service.ChangeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthenticationControllerTest {
     @Mock
     private AuthenticationService authenticationService;
-    @Mock
-    private ChangeService changeService;
     @InjectMocks
     private AuthenticationController authenticationController;
     private MockMvc mockMvc;
@@ -35,17 +31,6 @@ class AuthenticationControllerTest {
     void setUp(){
         mockMvc = MockMvcBuilders.standaloneSetup(authenticationController).build();
         objectMapper = new ObjectMapper();
-    }
-
-    @Test
-    void signUp() throws Exception {
-        SignUpRequest user = new SignUpRequest("user","user@gmail.com","user");
-        String userJson = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/api/v1/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson))
-                .andExpect(status().isCreated());
-        verify(authenticationService, times(1)).signUp(user);
     }
 
     @Test
@@ -67,6 +52,6 @@ class AuthenticationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isOk());
-        verify(changeService, times(1)).changePassword(change);
+        verify(authenticationService, times(1)).changePassword(change);
     }
 }

@@ -16,9 +16,9 @@ public class LessonMapper {
                 .map(child -> new ChildDto(
                         child.getFirstName(),
                         new ParentDto(
-                                child.getParent().getParentName(),
-                                child.getParent().getParentPhone(),
-                                child.getParent().getParentEmail())
+                                child.getUser().getName(),
+                                child.getUser().getPhone(),
+                                child.getUser().getEmail())
                 ))
                 .toList();
     }

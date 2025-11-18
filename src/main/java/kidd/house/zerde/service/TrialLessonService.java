@@ -5,17 +5,21 @@ import kidd.house.zerde.model.entity.Child;
 import kidd.house.zerde.model.entity.Group;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.User;
+import kidd.house.zerde.model.role.Authorities;
 import kidd.house.zerde.model.status.LessonStatus;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.GroupRepo;
 import kidd.house.zerde.repo.LessonRepo;
-import kidd.house.zerde.repo.ParentRepo;
+import kidd.house.zerde.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +29,12 @@ public class TrialLessonService {
     @Autowired
     private LessonRepo lessonRepo;
     @Autowired
-    private ParentRepo parentRepo;
-    @Autowired
     private GroupRepo groupRepo;
-    public void createTrialLesson(TemporaryLessonDto temporaryLessonDto) {
+    @Autowired
+    private UserRepo userRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    public void createTrialLessonAndSent(TemporaryLessonDto temporaryLessonDto) {
         Child child = new Child();
         child.setFirstName(temporaryLessonDto.childName());
         child.setAge(temporaryLessonDto.childAge());
@@ -40,11 +46,17 @@ public class TrialLessonService {
         groupRepo.save(group);
 
         User parent = new User();
-        parent.setParentName(temporaryLessonDto.parentName());
-        parent.setParentPhone(temporaryLessonDto.parentPhone());
-        parent.setParentEmail(temporaryLessonDto.parentEmail());
-        child.setParent(parent);
-        parentRepo.save(parent);
+        parent.setName(temporaryLessonDto.parentName());
+        parent.setPhone(temporaryLessonDto.parentPhone());
+        parent.setEmail(temporaryLessonDto.parentEmail());
+        parent.setAuthorities(Authorities.USER);
+
+        String rawPassword = randomAlphanumeric(8);
+        parent.setPasswordTemporary(true);
+        parent.setPassword(passwordEncoder.encode(rawPassword));
+
+        child.setUser(parent);
+        userRepo.save(parent);
 
         Lesson lesson = new Lesson();
         lesson.setGroup(group);
@@ -61,20 +73,23 @@ public class TrialLessonService {
         TODO: қай күндері ғана
          */
         lessonRepo.save(lesson);
+
+        sendNotification(temporaryLessonDto, rawPassword);
     }
 
-    public void sendNotification(TemporaryLessonDto temporaryLessonDto) {
-        // Формирование сообщения
+    private void sendNotification(TemporaryLessonDto temporaryLessonDto, String rawPassword) {
         String message = String.format(
-                "Уважаемый(ая) %s, у вашего ребенка %s запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s.",
+                "Уважаемый(ая) %s, у вашего ребенка %s запланирован урок с преподавателем %s, который состоится с %s до %s в комнате %s. \n" +
+                        "Ваш логин %s и временный пароль %s для входа ",
                 temporaryLessonDto.parentName(),
                 temporaryLessonDto.childName(),
                 "Gregory",
                 temporaryLessonDto.createTimeFrom(),
                 temporaryLessonDto.createTimeTo(),
-                "202"
-        );
-
+                "202",
+                temporaryLessonDto.parentEmail(),
+                rawPassword
+                );
         try {
             // Отправка email родителю, если указан email
             if (temporaryLessonDto.parentEmail() != null) {
