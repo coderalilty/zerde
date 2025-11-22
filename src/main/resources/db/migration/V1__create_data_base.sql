@@ -134,3 +134,23 @@ CREATE TABLE IF NOT EXISTS documents (
                                             file_path varchar(255) DEFAULT NULL,
                                             upload_date datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS subscriptions (
+                                            id int auto_increment primary key,
+                                            remaining_lessons int DEFAULT NULL,
+                                            start_date datetime DEFAULT NULL,
+                                            end_date datetime DEFAULT NULL,
+                                            status varchar(255) DEFAULT NULL,
+                                            price_paid int DEFAULT NULL,
+                                            children_id int DEFAULT NULL,
+                                            subscription_plans_id int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS subscription_plans (
+                                            id int auto_increment primary key,
+                                            code varchar(255) DEFAULT NULL,
+                                            name varchar(255) DEFAULT NULL,
+                                            total_lessons int DEFAULT NULL,
+                                            duration_days int DEFAULT NULL,
+                                            price int DEFAULT NULL,
+                                            is_group boolean DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

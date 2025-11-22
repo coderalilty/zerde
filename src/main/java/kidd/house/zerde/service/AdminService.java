@@ -1,6 +1,7 @@
 package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.adminDto.*;
+import kidd.house.zerde.dto.payments.CreateSubscriptionPlanDto;
 import kidd.house.zerde.dto.schedule.ChildDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
@@ -51,6 +52,8 @@ public class AdminService {
     private ChildRepo childRepo;
     @Autowired
     private LessonMapper lessonMapper;
+    @Autowired
+    private SubscriptionPlanRepo subscriptionPlanRepo;
     public void createNewTeacher(CreateTeacherDto createTeacherDto) {
         User user = new User();
         user.setName(createTeacherDto.name());
@@ -506,5 +509,16 @@ public class AdminService {
             System.err.println("Ошибка при отправке уведомления: " + e.getMessage());
             log.warn("Failed to send notification");
         }
+    }
+
+    public void createSubscription(CreateSubscriptionPlanDto subscriptionDto) {
+        SubscriptionPlan subscriptionPlan = new SubscriptionPlan();
+        subscriptionPlan.setCode(subscriptionDto.code());
+        subscriptionPlan.setName(subscriptionDto.name());
+        subscriptionPlan.setTotalLessons(subscriptionDto.total_lessons());
+        subscriptionPlan.setDurationDays(subscriptionDto.duration_days());
+        subscriptionPlan.setPrice(subscriptionDto.price());
+        subscriptionPlan.setGroup(subscriptionDto.is_group());
+        subscriptionPlanRepo.save(subscriptionPlan);
     }
 }

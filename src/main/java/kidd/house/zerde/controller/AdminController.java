@@ -2,6 +2,7 @@ package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.adminDto.*;
 import kidd.house.zerde.dto.lockLesson.LockLessonRequest;
+import kidd.house.zerde.dto.payments.CreateSubscriptionPlanDto;
 import kidd.house.zerde.dto.sendNotification.NotificationRequestDto;
 import kidd.house.zerde.dto.temporartLessonDto.TemporaryLessonDtos;
 import kidd.house.zerde.service.AdminService;
@@ -113,7 +114,11 @@ public class AdminController {
         adminService.sendNotificationAll(notificationRequest);
         return ResponseEntity.ok("Notification for lesson ID " + notificationRequest.lessonId() + " sent successfully.");
     }
-
+    @PostMapping("/create_subscription")
+    public ResponseEntity<String> createSubscription(@RequestBody CreateSubscriptionPlanDto subscriptionDto){
+        adminService.createSubscription(subscriptionDto);
+        return new ResponseEntity<>("Subscription successfully created!",HttpStatus.CREATED);
+    }
     @PutMapping("/edit_lesson/{lesson_id}")
     public ResponseEntity<String> editLesson(@PathVariable int lesson_id,@RequestBody LessonDtos lessonDtos){
         lessonService.editLesson(lesson_id,lessonDtos);
