@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubscriptionPlanRepo extends JpaRepository<SubscriptionPlan,Integer> {
     SubscriptionPlan findByCode(String s);
+    SubscriptionPlan findById(int subscriptionPlanId);
 }

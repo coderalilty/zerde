@@ -65,6 +65,11 @@ public class AdminController {
         List<AdminProfileDto> adminProfileDto = adminService.getAdminProfiles();
         return ResponseEntity.ok(adminProfileDto);
     }
+    @GetMapping("/subscriptions")
+    public ResponseEntity<List<CreateSubscriptionPlanDto>> getSubscriptions(){
+        List<CreateSubscriptionPlanDto> subscriptionPlanDtoList = adminService.getSubscriptions();
+        return ResponseEntity.ok(subscriptionPlanDtoList);
+    }
     @PostMapping("/create-teacher")
     public ResponseEntity<String> createTeacher(@RequestBody CreateTeacherDto createTeacherDto){
         adminService.createNewTeacher(createTeacherDto);
@@ -119,6 +124,11 @@ public class AdminController {
         adminService.createSubscription(subscriptionDto);
         return new ResponseEntity<>("Subscription successfully created!",HttpStatus.CREATED);
     }
+    @PutMapping("/edit_subscription/{subscription_plan_id}")
+    public ResponseEntity<String> editSubscription(@PathVariable int subscription_plan_id,@RequestBody CreateSubscriptionPlanDto subscriptionPlanDto){
+        adminService.editSubscription(subscription_plan_id,subscriptionPlanDto);
+        return new ResponseEntity<>("Lesson edited",HttpStatus.OK);
+    }
     @PutMapping("/edit_lesson/{lesson_id}")
     public ResponseEntity<String> editLesson(@PathVariable int lesson_id,@RequestBody LessonDtos lessonDtos){
         lessonService.editLesson(lesson_id,lessonDtos);
@@ -149,6 +159,11 @@ public class AdminController {
         adminService.editGroup(app_group_id,editGroupDto);
         return new ResponseEntity<>("Group edited",HttpStatus.OK);
     }
+    @DeleteMapping("/delete-subscription-plan/{subscription_plan_id}")
+    public ResponseEntity<String> deleteSubscriptionPlan(@PathVariable int subscription_plan_id){
+        adminService.deleteSubscriptionPlan(subscription_plan_id);
+        return new ResponseEntity<>("Delete SubscriptionPlan success",HttpStatus.OK);
+    }
     @DeleteMapping("/lock-lesson/{lockLesson_id}")
     public ResponseEntity<String> deleteLockLesson(@PathVariable int lockLesson_id){
         lessonService.deleteLockLesson(lockLesson_id);
@@ -164,8 +179,8 @@ public class AdminController {
         adminService.deleteChild(child_id);
         return new ResponseEntity<>("Delete Child success",HttpStatus.OK);
     }
-    @DeleteMapping("/delete-teacher/{teacher_id}")
-    public ResponseEntity<String> deleteTeacher(@PathVariable int teacher_id){
+    @DeleteMapping("/delete-teacher")
+    public ResponseEntity<String> deleteTeacher(@RequestParam int teacher_id){
         adminService.deleteTeacher(teacher_id);
         return new ResponseEntity<>("Delete Teacher success",HttpStatus.OK);
     }

@@ -14,8 +14,6 @@ import kidd.house.zerde.repo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -351,28 +349,6 @@ public class AdminService {
     }
 
     public void deleteTeacher(int teacherId) {
-        User userToDelete = userRepo.findById(teacherId);
-
-        // Получаем текущего аутентифицированного пользователя
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        // Проверка 1: нельзя удалить самого себя
-        if (userToDelete.getUsername().equals(currentUsername)) {
-            log.warn("Нельзя удалить самого себя");
-            return;
-        }
-
-        // Проверка 2: нельзя удалить администратора
-        boolean isAdmin = userToDelete.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
-
-        if (isAdmin) {
-            log.warn("Нельзя удалить администратора");
-            return;
-        }
-
-        // Если проверки пройдены — удаляем
         userRepo.deleteById(teacherId);
         log.info("Пользователь с ID {} успешно удален", teacherId);
     }
@@ -520,5 +496,61 @@ public class AdminService {
         subscriptionPlan.setPrice(subscriptionDto.price());
         subscriptionPlan.setGroup(subscriptionDto.is_group());
         subscriptionPlanRepo.save(subscriptionPlan);
+    }
+
+    public List<CreateSubscriptionPlanDto> getSubscriptions() {
+        List<SubscriptionPlan> subscriptionPlanList = subscriptionPlanRepo.findAll();
+        return subscriptionPlanList.stream()
+                .map(this::toDtoSubscription)
+                .toList();
+    }
+
+    private CreateSubscriptionPlanDto toDtoSubscription(SubscriptionPlan subscriptionPlan) {
+        return new CreateSubscriptionPlanDto(
+                subscriptionPlan.getCode(),
+                subscriptionPlan.getName(),
+                subscriptionPlan.getTotalLessons(),
+                subscriptionPlan.getDurationDays(),
+                subscriptionPlan.getPrice(),
+                subscriptionPlan.isGroup()
+        );
+    }
+
+    public void editSubscription(int subscriptionPlanId, CreateSubscriptionPlanDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Subscription plan data cannot be null");
+        }
+
+        SubscriptionPlan plan = subscriptionPlanRepo.findById(subscriptionPlanId);
+        if (plan == null) {
+            throw new IllegalArgumentException("Subscription plan with id " + subscriptionPlanId + " not found");
+        }
+        if (dto.code() == null || dto.code().isBlank()) {
+            throw new IllegalArgumentException("Plan code cannot be empty");
+        }
+        if (dto.name() == null || dto.name().isBlank()) {
+            throw new IllegalArgumentException("Plan name cannot be empty");
+        }
+        if (dto.total_lessons() <= 0) {
+            throw new IllegalArgumentException("Total lessons must be > 0");
+        }
+        if (dto.duration_days() <= 0) {
+            throw new IllegalArgumentException("Duration must be > 0");
+        }
+        if (dto.price() <= 0) {
+            throw new IllegalArgumentException("Price must be > 0");
+        }
+        plan.setCode(dto.code());
+        plan.setName(dto.name());
+        plan.setTotalLessons(dto.total_lessons());
+        plan.setDurationDays(dto.duration_days());
+        plan.setPrice(dto.price());
+        plan.setGroup(dto.is_group());
+
+        subscriptionPlanRepo.save(plan);
+    }
+
+    public void deleteSubscriptionPlan(int subscriptionPlanId) {
+        subscriptionPlanRepo.deleteById(subscriptionPlanId);
     }
 }

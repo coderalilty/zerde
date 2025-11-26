@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS `children` (
                                           `last_name` varchar(255) DEFAULT NULL,
                                           `middle_name` varchar(255) DEFAULT NULL,
                                           `diagnoses_id` int DEFAULT NULL,
-                                          `app_groups_id` int DEFAULT NULL
+                                          `app_groups_id` int DEFAULT NULL,
+                                          `users_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -153,4 +154,14 @@ CREATE TABLE IF NOT EXISTS subscription_plans (
                                             duration_days int DEFAULT NULL,
                                             price int DEFAULT NULL,
                                             is_group boolean DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS payments (
+                                            id int auto_increment primary key,
+                                            kaspi_payment_id varchar(255) DEFAULT NULL,
+                                            kaspi_status varchar(255) DEFAULT NULL,
+                                            redirect_url varchar(255) DEFAULT NULL,
+                                            amount int DEFAULT NULL,
+                                            child_id int DEFAULT NULL,
+                                            plan_code varchar(255) DEFAULT NULL,
+                                            created_at datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
