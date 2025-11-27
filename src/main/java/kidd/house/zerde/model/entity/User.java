@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,6 +44,22 @@ public class User implements UserDetails {
     @JoinTable(name = "teacher_subjects", joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "subjects_id"))
     private List<Subject> subjects;
+
+    @ManyToOne
+    @JoinColumn(name = "subscription_plan_id")
+    private SubscriptionPlan subscriptionPlan;
+
+    @Column(name = "subscription_start_date")
+    private LocalDate subscriptionStartDate;
+
+    @Column(name = "subscription_end_date")
+    private LocalDate subscriptionEndDate;
+
+    @OneToMany(mappedBy = "user_id")
+    private List<Lesson> permanentLessons;
+
+    @OneToOne
+    private TrialLesson trialLesson;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
