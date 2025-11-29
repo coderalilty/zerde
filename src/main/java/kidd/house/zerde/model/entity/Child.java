@@ -3,6 +3,8 @@ package kidd.house.zerde.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "children")
@@ -27,5 +29,7 @@ public class Child {
     @ManyToOne
     @JoinColumn(name = "app_groups_id",referencedColumnName = "id")
     private Group group;
+    @OneToMany(mappedBy = "child")
+    private List<Subscription> subscriptions;
 }
 
