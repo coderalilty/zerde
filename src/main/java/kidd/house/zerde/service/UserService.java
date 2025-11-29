@@ -9,8 +9,4 @@ public interface UserService {
     UserDetailsService userDetailsService();
     UserProfileDto getUserProfiles();
     void editUser(int userId, EditUserDto editUserDto);
-    SubscriptionDto getUserSubscription(int userId);
-    List<LessonDto> getPermanentLessons(int userId);
-    TrialLessonDto getTrialLesson(int userId);
-    void buySubscription(int userId, int subscriptionPlanId );
 }
