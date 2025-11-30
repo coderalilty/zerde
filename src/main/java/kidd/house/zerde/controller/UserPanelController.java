@@ -34,7 +34,7 @@ public class UserPanelController {
     return new ResponseEntity<>("User edited", HttpStatus.OK);
 
     }
-    @GetMapping("/{user_id}")
+    @GetMapping("/subscriptions/{user_id}")
     public List<SubscriptionDto> getUserSubscriptions(@PathVariable int user_id) {
         return userService.getUserSubscriptions(user_id);
     }
