@@ -2,10 +2,7 @@ package kidd.house.zerde.service.impl;
 
 import kidd.house.zerde.dto.schedule.ChildDto;
 import kidd.house.zerde.dto.schedule.ParentDto;
-import kidd.house.zerde.dto.user.EditUserDto;
-import kidd.house.zerde.dto.user.KaspiPaymentResponseDto;
-import kidd.house.zerde.dto.user.PurchaseSubscriptionDto;
-import kidd.house.zerde.dto.user.UserProfileDto;
+import kidd.house.zerde.dto.user.*;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
@@ -20,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -91,22 +87,63 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Subscription> getUserSubscriptions(Integer user_id) {
-        Optional<User> optionalUser = userRepo.findById(user_id);
-        if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not found with id: " + user_id);
-        }
-        return subscriptionRepo.findAllByUserId(user_id);
+    public List<SubscriptionDto> getUserSubscriptions(int user_id) {
+        List<Subscription> subscriptions = subscriptionRepo.findAllByUserId(user_id);
+        return subscriptions.stream()
+                .map(s -> new SubscriptionDto(
+                        s.getId(),
+                        s.getRemainingLessons(),
+                        s.getStartDate(),
+                        s.getEndDate(),
+                        s.getStatus(),
+                        s.getPricePaid(),
+                        s.getChild() != null ? s.getChild().getId() : null,
+                        s.getPlan() != null ? s.getPlan().getId() : null
+                ))
+                .toList();
     }
+
+
     @Override
-    public List<Lesson> getTrialLessons(int user_id) {
-        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, user_id);
+    public List<LessonDto> getTrialLessons(int user_id) {
+        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, user_id).stream()
+                .map(l -> new LessonDto(
+                        l.getId(),
+                        l.getLessonName(),
+                        l.getLessonDay(),
+                        l.getLessonType(),
+                        l.getLessonStatus(),
+                        l.getGroupType(),
+                        l.getLessonMark(),
+                        l.getLessonMark2(),
+                        l.getSubject() != null ? l.getSubject().getId() : null,
+                        l.getRoom() != null ? l.getRoom().getId() : null,
+                        l.getUser() != null ? l.getUser().getId() : null,
+                        l.getGroup() != null ? l.getGroup().getId() : null
+                ))
+                .toList();
     }
 
     @Override
-    public List<Lesson> getPermanentLessons(int user_id) {
-        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, user_id);
+    public List<LessonDto> getPermanentLessons(int user_id) {
+        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, user_id).stream()
+                .map(l -> new LessonDto(
+                        l.getId(),
+                        l.getLessonName(),
+                        l.getLessonDay(),
+                        l.getLessonType(),
+                        l.getLessonStatus(),
+                        l.getGroupType(),
+                        l.getLessonMark(),
+                        l.getLessonMark2(),
+                        l.getSubject() != null ? l.getSubject().getId() : null,
+                        l.getRoom() != null ? l.getRoom().getId() : null,
+                        l.getUser() != null ? l.getUser().getId() : null,
+                        l.getGroup() != null ? l.getGroup().getId() : null
+                ))
+                .toList();
     }
+
     @Override
     @Transactional
     public KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto) {

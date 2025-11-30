@@ -1,9 +1,6 @@
 package kidd.house.zerde.controller;
 
-import kidd.house.zerde.dto.user.EditUserDto;
-import kidd.house.zerde.dto.user.KaspiPaymentResponseDto;
-import kidd.house.zerde.dto.user.PurchaseSubscriptionDto;
-import kidd.house.zerde.dto.user.UserProfileDto;
+import kidd.house.zerde.dto.user.*;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.Subscription;
 import kidd.house.zerde.model.entity.User;
@@ -37,8 +34,8 @@ public class UserPanelController {
     return new ResponseEntity<>("User edited", HttpStatus.OK);
 
     }
-    @GetMapping("/{user_id}/subscriptions")
-    public List<Subscription> getUserSubscriptions(@PathVariable int user_id) {
+    @GetMapping("/{user_id}")
+    public List<SubscriptionDto> getUserSubscriptions(@PathVariable int user_id) {
         return userService.getUserSubscriptions(user_id);
     }
     @PostMapping("/buy-subscription")
@@ -47,13 +44,13 @@ public class UserPanelController {
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping("/{user_id}/trial_lesson")
-    public List<Lesson> getTrialLessons(@PathVariable int user_id) {
-        return userService.getTrialLessons(user_id);
+    @GetMapping("/trial_lesson/{user_id}")
+    public List<LessonDto> getTrialLessons(@PathVariable int userId) {
+        return userService.getTrialLessons(userId);
     }
 
-    @GetMapping("/{user_id}/permanent_lessons")
-    public List<Lesson> getPermanentLessons(@PathVariable int user_id) {
-        return userService.getPermanentLessons(user_id);
+    @GetMapping("/permanent_lessons/{user_id}")
+    public List<LessonDto> getPermanentLessons(@PathVariable int userId) {
+        return userService.getPermanentLessons(userId);
     }
 }
