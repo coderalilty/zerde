@@ -13,8 +13,6 @@ import kidd.house.zerde.service.KaspiService;
 import kidd.house.zerde.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -40,14 +38,12 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
     @Override
-    public UserProfileDto getUserProfiles() {
-        // Ағымдағы қолданушыны алу
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+    public UserProfileDto getUserProfiles(int user_id) {
 
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        // Children тізімін DTO-ға ауыстыру
+        User user = userRepo.findById(user_id);
+        if (user == null) {
+            throw new RuntimeException("User not found with id: " + user_id);
+        }
         List<ChildDto> childrenDto = user.getChildren().stream()
                 .map(child -> new ChildDto(
                         child.getFirstName(),
@@ -56,8 +52,7 @@ public class UserServiceImpl implements UserService {
                                 user.getPhone(),
                                 user.getEmail()
                         )
-                ))
-                .toList();
+                )).toList();
 
         return new UserProfileDto(
                 user.getName(),
@@ -69,12 +64,13 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+
     @Override
-    public void editUser(int userId, EditUserDto editUserDto) {
+    public void editUser(int user_id, EditUserDto editUserDto) {
         // 1. User-ды табу немесе жоқ болса қате шығару
-        User user = userRepo.findById(userId);
+        User user = userRepo.findById(user_id);
         if (user == null) {
-            throw new RuntimeException("User not found with id: " + userId);
+            throw new RuntimeException("User not found with id: " + user_id);
         }
         // 2. Тек DTO-дан мәні бар өрістерді жаңарту
         if (editUserDto.name() != null && !editUserDto.name().isBlank()) {
@@ -95,21 +91,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Subscription> getUserSubscriptions(Integer userId) {
-        Optional<User> optionalUser = userRepo.findById(userId);
+    public List<Subscription> getUserSubscriptions(Integer user_id) {
+        Optional<User> optionalUser = userRepo.findById(user_id);
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not found with id: " + userId);
+            throw new RuntimeException("User not found with id: " + user_id);
         }
-        return subscriptionRepo.findAllByUserId(userId);
+        return subscriptionRepo.findAllByUserId(user_id);
     }
     @Override
-    public List<Lesson> getTrialLessons(int userId) {
-        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, userId);
+    public List<Lesson> getTrialLessons(int user_id) {
+        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, user_id);
     }
 
     @Override
-    public List<Lesson> getPermanentLessons(int userId) {
-        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, userId);
+    public List<Lesson> getPermanentLessons(int user_id) {
+        return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, user_id);
     }
     @Override
     @Transactional

@@ -20,26 +20,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserPanelController {
     private final UserService userService;
-    @GetMapping("/profile")
-    public ResponseEntity<UserProfileDto> getUserProfiles(){
-        UserProfileDto userProfileDto= userService.getUserProfiles();
+    @GetMapping("/profile/{user_id}")
+    public ResponseEntity<UserProfileDto> getUserProfiles(@PathVariable int user_id) {
+        UserProfileDto userProfileDto = userService.getUserProfiles(user_id);
         return ResponseEntity.ok(userProfileDto);
     }
-//    @PutMapping("/edit_user/{teacher_id}")
-//    public ResponseEntity<String> editTeacher(@PathVariable int teacher_id, @RequestBody EditTeacherDto editTeacherDto){
-//        userService.editTeacher(teacher_id,editTeacherDto);
-//        return new ResponseEntity<>("Teacher edited", HttpStatus.OK);
-//    }
-    @PutMapping("/edit_user/{user_id}")
+/*    @PutMapping("/edit_user/{teacher_id}")
+    public ResponseEntity<String> editTeacher(@PathVariable int teacher_id, @RequestBody EditTeacherDto editTeacherDto){
+        userService.editTeacher(teacher_id,editTeacherDto);
+        return new ResponseEntity<>("Teacher edited", HttpStatus.OK);
+   }*/
+@PutMapping("/edit_user/{user_id}")
     public ResponseEntity<String> editUser(@PathVariable int user_id,
                                            @RequestBody EditUserDto editUserDto) {
         userService.editUser(user_id, editUserDto);
     return new ResponseEntity<>("User edited", HttpStatus.OK);
 
     }
-    @GetMapping("/{userId}/subscriptions")
-    public List<Subscription> getUserSubscriptions(@PathVariable int userId) {
-        return userService.getUserSubscriptions(userId);
+    @GetMapping("/{user_id}/subscriptions")
+    public List<Subscription> getUserSubscriptions(@PathVariable int user_id) {
+        return userService.getUserSubscriptions(user_id);
     }
     @PostMapping("/buy-subscription")
     public ResponseEntity<KaspiPaymentResponseDto> buySubscription(@RequestBody PurchaseSubscriptionDto dto) {
@@ -47,13 +47,13 @@ public class UserPanelController {
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping("/{userId}/trial_lesson")
-    public List<Lesson> getTrialLessons(@PathVariable int userId) {
-        return userService.getTrialLessons(userId);
+    @GetMapping("/{user_id}/trial_lesson")
+    public List<Lesson> getTrialLessons(@PathVariable int user_id) {
+        return userService.getTrialLessons(user_id);
     }
 
-    @GetMapping("/{userId}/permanent_lessons")
-    public List<Lesson> getPermanentLessons(@PathVariable int userId) {
-        return userService.getPermanentLessons(userId);
+    @GetMapping("/{user_id}/permanent_lessons")
+    public List<Lesson> getPermanentLessons(@PathVariable int user_id) {
+        return userService.getPermanentLessons(user_id);
     }
 }

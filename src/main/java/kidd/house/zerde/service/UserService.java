@@ -14,15 +14,17 @@ import java.util.List;
 public interface UserService {
     UserDetailsService userDetailsService();
 
-    UserProfileDto getUserProfiles();
+    //UserProfileDto getUserProfiles();
 
-    void editUser(int userId, EditUserDto editUserDto);
+    UserProfileDto getUserProfiles(int user_id);
 
-    List<Subscription> getUserSubscriptions(Integer userId);
+    void editUser(int user_id, EditUserDto editUserDto);
 
-    List<Lesson> getTrialLessons(int userId);
+    List<Subscription> getUserSubscriptions(Integer user_id);
 
-    List<Lesson> getPermanentLessons(int userId);
+    List<Lesson> getTrialLessons(int user_id);
+
+    List<Lesson> getPermanentLessons(int user_id);
 
     @Transactional
     KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto);
