@@ -43,6 +43,14 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "subjects_id"))
     private List<Subject> subjects;
 
+    @OneToMany
+    @JoinTable(
+            name = "user_subscriptions",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "subscription_id")
+    )
+    private List<Subscription> subscriptions;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(authorities.name()));

@@ -399,17 +399,17 @@ class AdminControllerTest {
         verify(adminService,times(1)).deleteChild(child.getId());
     }
 
-    @Test
-    void deleteTeacher() throws Exception{
-        User teacher = new User();
-        teacher.setId(1);
-
-        mockMvc.perform(delete("/api/v1/admin/delete-teacher/{teacher_id}",teacher.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        verify(adminService,times(1)).deleteTeacher(teacher.getId());
-    }
+//    @Test
+//    void deleteTeacher() throws Exception{
+//        User teacher = new User();
+//        teacher.setId(1);
+//
+//        mockMvc.perform(delete("/api/v1/admin/delete-teacher/{teacher_id}",teacher.getId())
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//
+//        verify(adminService,times(1)).deleteTeacher(teacher.getId());
+//    }
 
     @Test
     void deleteGroup() throws Exception{

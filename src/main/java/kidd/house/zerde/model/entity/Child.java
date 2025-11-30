@@ -31,5 +31,8 @@ public class Child {
     private Group group;
     @OneToMany(mappedBy = "child")
     private List<Subscription> subscriptions;
+    @OneToMany(mappedBy = "child")
+    private List<Lesson> lessons;
+
 }
 

@@ -1,23 +1,59 @@
 package kidd.house.zerde.controller;
 
+import kidd.house.zerde.dto.user.EditUserDto;
+import kidd.house.zerde.dto.user.KaspiPaymentResponseDto;
+import kidd.house.zerde.dto.user.PurchaseSubscriptionDto;
+import kidd.house.zerde.dto.user.UserProfileDto;
+import kidd.house.zerde.model.entity.Lesson;
+import kidd.house.zerde.model.entity.Subscription;
+import kidd.house.zerde.model.entity.User;
 import kidd.house.zerde.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserPanelController {
     private final UserService userService;
-//    @GetMapping("/profile")
-//    public ResponseEntity<UserProfileDto> getUserProfiles(){
-//          = userService.getUserProfiles();
-//        return ResponseEntity.ok();
-//    }
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDto> getUserProfiles(){
+        UserProfileDto userProfileDto= userService.getUserProfiles();
+        return ResponseEntity.ok(userProfileDto);
+    }
 //    @PutMapping("/edit_user/{teacher_id}")
 //    public ResponseEntity<String> editTeacher(@PathVariable int teacher_id, @RequestBody EditTeacherDto editTeacherDto){
 //        userService.editTeacher(teacher_id,editTeacherDto);
 //        return new ResponseEntity<>("Teacher edited", HttpStatus.OK);
 //    }
+    @PutMapping("/edit_user/{user_id}")
+    public ResponseEntity<String> editUser(@PathVariable int user_id,
+                                           @RequestBody EditUserDto editUserDto) {
+        userService.editUser(user_id, editUserDto);
+    return new ResponseEntity<>("User edited", HttpStatus.OK);
+
+    }
+    @GetMapping("/{userId}/subscriptions")
+    public List<Subscription> getUserSubscriptions(@PathVariable int userId) {
+        return userService.getUserSubscriptions(userId);
+    }
+    @PostMapping("/buy-subscription")
+    public ResponseEntity<KaspiPaymentResponseDto> buySubscription(@RequestBody PurchaseSubscriptionDto dto) {
+        KaspiPaymentResponseDto resp = userService.purchase(dto);
+        return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping("/{userId}/trial_lesson")
+    public List<Lesson> getTrialLessons(@PathVariable int userId) {
+        return userService.getTrialLessons(userId);
+    }
+
+    @GetMapping("/{userId}/permanent_lessons")
+    public List<Lesson> getPermanentLessons(@PathVariable int userId) {
+        return userService.getPermanentLessons(userId);
+    }
 }
