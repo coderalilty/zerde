@@ -22,4 +22,6 @@ public interface UserService {
 
     @Transactional
     KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto);
+
+    void finalizePaymentAndCreateSubscription(String s, String status);
 }

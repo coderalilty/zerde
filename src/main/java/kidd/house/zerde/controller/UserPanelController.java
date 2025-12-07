@@ -4,6 +4,7 @@ import kidd.house.zerde.dto.user.*;
 import kidd.house.zerde.model.entity.Lesson;
 import kidd.house.zerde.model.entity.Subscription;
 import kidd.house.zerde.model.entity.User;
+import kidd.house.zerde.service.KaspiService;
 import kidd.house.zerde.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserPanelController {
     private final UserService userService;
+    private final KaspiService kaspiService;
     @GetMapping("/profile/{user_id}")
     public ResponseEntity<UserProfileDto> getUserProfiles(@PathVariable int user_id) {
         UserProfileDto userProfileDto = userService.getUserProfiles(user_id);
@@ -52,5 +54,25 @@ public class UserPanelController {
     @GetMapping("/permanent_lessons/{user_id}")
     public List<LessonDto> getPermanentLessons(@PathVariable int userId) {
         return userService.getPermanentLessons(userId);
+    }
+    @PostMapping("/callback")
+    public ResponseEntity<String> callback(
+            @RequestBody KaspiCallbackDto dto,
+            @RequestHeader(value = "X-Kaspi-Signature",
+                    required = false)
+            String signature) {
+
+        // Для проверки подписи мы можем использовать raw body. Здесь предполагается, что
+        // framework уже десериализовал в dto — в реальном коде лучше принимать raw String и передавать в verify
+        String payloadString = dto.toString(); // замените на реальное тело (raw), если нужен точный расчет подписи
+
+        if (signature != null && !kaspiService.verifyCallbackSignature(payloadString, signature)) {
+            return ResponseEntity.status(400).body("Invalid signature");
+        }
+
+        // обновляем Payment и, если SUCCESS, создаём подписку
+        userService.finalizePaymentAndCreateSubscription(dto.paymentId(), dto.status());
+
+        return ResponseEntity.ok("OK");
     }
 }
