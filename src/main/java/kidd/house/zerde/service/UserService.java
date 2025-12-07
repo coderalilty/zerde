@@ -2,7 +2,6 @@ package kidd.house.zerde.service;
 
 import kidd.house.zerde.dto.user.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,7 +19,6 @@ public interface UserService {
 
     List<LessonDto> getPermanentLessons(int user_id);
 
-    @Transactional
     KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto);
 
     void finalizePaymentAndCreateSubscription(String s, String status);

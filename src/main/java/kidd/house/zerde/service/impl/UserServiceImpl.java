@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final SubscriptionPlanRepo subscriptionPlanRepo;
     private final KaspiService kaspiService;
     private final PaymentRepo paymentRepo;
+    private final ChildRepo childRepo;
 
     @Bean
     public UserDetailsService userDetailsService(){
@@ -90,57 +91,52 @@ public class UserServiceImpl implements UserService {
     public List<SubscriptionDto> getUserSubscriptions(int user_id) {
         List<Subscription> subscriptions = subscriptionRepo.findAllByUserId(user_id);
         return subscriptions.stream()
-                .map(s -> new SubscriptionDto(
-                        s.getId(),
-                        s.getRemainingLessons(),
-                        s.getStartDate(),
-                        s.getEndDate(),
-                        s.getStatus(),
-                        s.getPricePaid(),
-                        s.getChild() != null ? s.getChild().getId() : null,
-                        s.getPlan() != null ? s.getPlan().getId() : null
-                ))
+                .map(this::toUserSubscriptionDto)
                 .toList();
+    }
+
+    private SubscriptionDto toUserSubscriptionDto(Subscription subscription) {
+        return new SubscriptionDto(
+                subscription.getId(),
+                subscription.getRemainingLessons(),
+                subscription.getStartDate(),
+                subscription.getEndDate(),
+                subscription.getStatus(),
+                subscription.getPricePaid(),
+                subscription.getChild() != null ? subscription.getChild().getId() : null,
+                subscription.getPlan() != null ? subscription.getPlan().getId() : null
+        );
     }
 
 
     @Override
     public List<LessonDto> getTrialLessons(int user_id) {
         return lessonRepo.findAllByLessonTypeAndUserId(LessonType.TRIAL, user_id).stream()
-                .map(l -> new LessonDto(
-                        l.getId(),
-                        l.getLessonName(),
-                        l.getLessonDay(),
-                        l.getLessonType(),
-                        l.getLessonStatus(),
-                        l.getGroupType(),
-                        l.getLessonMark(),
-                        l.getLessonMark2(),
-                        l.getSubject() != null ? l.getSubject().getId() : null,
-                        l.getRoom() != null ? l.getRoom().getId() : null,
-                        l.getUser() != null ? l.getUser().getId() : null,
-                        l.getGroup() != null ? l.getGroup().getId() : null
-                ))
+                .map(this::toLessonDto)
                 .toList();
+    }
+
+    private LessonDto toLessonDto(Lesson lesson) {
+        return new LessonDto(
+                lesson.getId(),
+                lesson.getLessonName(),
+                lesson.getLessonDay(),
+                lesson.getLessonType(),
+                lesson.getLessonStatus(),
+                lesson.getGroupType(),
+                lesson.getLessonMark(),
+                lesson.getLessonMark2(),
+                lesson.getSubject() != null ? lesson.getSubject().getId() : null,
+                lesson.getRoom() != null ? lesson.getRoom().getId() : null,
+                lesson.getUser() != null ? lesson.getUser().getId() : null,
+                lesson.getGroup() != null ? lesson.getGroup().getId() : null
+        );
     }
 
     @Override
     public List<LessonDto> getPermanentLessons(int user_id) {
         return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, user_id).stream()
-                .map(l -> new LessonDto(
-                        l.getId(),
-                        l.getLessonName(),
-                        l.getLessonDay(),
-                        l.getLessonType(),
-                        l.getLessonStatus(),
-                        l.getGroupType(),
-                        l.getLessonMark(),
-                        l.getLessonMark2(),
-                        l.getSubject() != null ? l.getSubject().getId() : null,
-                        l.getRoom() != null ? l.getRoom().getId() : null,
-                        l.getUser() != null ? l.getUser().getId() : null,
-                        l.getGroup() != null ? l.getGroup().getId() : null
-                ))
+                .map(this::toLessonDto)
                 .toList();
     }
 
@@ -174,5 +170,34 @@ public class UserServiceImpl implements UserService {
 
         // возвращаем клиенту ссылку/QR
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void finalizePaymentAndCreateSubscription(String kaspiPaymentId, String kaspiStatus) {
+        Payment payment = paymentRepo.findByKaspiPaymentId(kaspiPaymentId);
+        if (payment == null) throw new IllegalArgumentException("Payment not found: " + kaspiPaymentId);
+
+        payment.setKaspiStatus(kaspiStatus);
+        paymentRepo.save(payment);
+
+        if (!"SUCCESS".equalsIgnoreCase(kaspiStatus)) {
+            return;
+        }
+
+        // Создаём подписку только если ещё не создано (проверка по childId + planCode + незаконченная подписка — опционально)
+        Subscription subscription = new Subscription();
+        // если у тебя Child entity: загрузи её, тут для простоты используем childId
+        Child child = childRepo.findById(payment.getChildId());
+        subscription.setChild(child);
+        SubscriptionPlan plan = subscriptionPlanRepo.findByCode(payment.getPlanCode());
+        subscription.setPlan(plan);
+        subscription.setRemainingLessons(plan.getTotalLessons());
+        subscription.setStartDate(LocalDateTime.now());
+        subscription.setEndDate(LocalDateTime.now().plusDays(plan.getDurationDays()));
+        subscription.setStatus("ACTIVE");
+        subscription.setPricePaid(payment.getAmount());
+
+        subscriptionRepo.save(subscription);
     }
 }

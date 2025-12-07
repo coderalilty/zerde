@@ -28,6 +28,7 @@ public class Subscription {
     @ManyToOne
     @JoinColumn(name = "subscription_plans_id",referencedColumnName = "id")
     private SubscriptionPlan plan;
-
-
+    @ManyToOne
+    @JoinColumn(name = "users_id",referencedColumnName = "id")
+    private User user;
 }

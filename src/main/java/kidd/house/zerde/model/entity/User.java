@@ -43,12 +43,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "subjects_id"))
     private List<Subject> subjects;
 
-    @OneToMany
-    @JoinTable(
-            name = "user_subscriptions",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "subscription_id")
-    )
+    @OneToMany(mappedBy = "user")
     private List<Subscription> subscriptions;
 
     @Override

@@ -143,7 +143,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
                                             status varchar(255) DEFAULT NULL,
                                             price_paid int DEFAULT NULL,
                                             children_id int DEFAULT NULL,
-                                            subscription_plans_id int DEFAULT NULL
+                                            subscription_plans_id int DEFAULT NULL,
+                                            users_id int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS subscription_plans (

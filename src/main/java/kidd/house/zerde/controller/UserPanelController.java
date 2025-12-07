@@ -1,9 +1,6 @@
 package kidd.house.zerde.controller;
 
 import kidd.house.zerde.dto.user.*;
-import kidd.house.zerde.model.entity.Lesson;
-import kidd.house.zerde.model.entity.Subscription;
-import kidd.house.zerde.model.entity.User;
 import kidd.house.zerde.service.KaspiService;
 import kidd.house.zerde.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +26,7 @@ public class UserPanelController {
         userService.editTeacher(teacher_id,editTeacherDto);
         return new ResponseEntity<>("Teacher edited", HttpStatus.OK);
    }*/
-@PutMapping("/edit_user/{user_id}")
+    @PutMapping("/edit_user/{user_id}")
     public ResponseEntity<String> editUser(@PathVariable int user_id,
                                            @RequestBody EditUserDto editUserDto) {
         userService.editUser(user_id, editUserDto);
@@ -47,13 +44,15 @@ public class UserPanelController {
     }
 
     @GetMapping("/trial_lesson/{user_id}")
-    public List<LessonDto> getTrialLessons(@PathVariable int userId) {
-        return userService.getTrialLessons(userId);
+    public ResponseEntity<List<LessonDto>> getTrialLessons(@PathVariable int user_id) {
+        List<LessonDto> trialLessons = userService.getTrialLessons(user_id);
+        return ResponseEntity.ok(trialLessons);
     }
 
     @GetMapping("/permanent_lessons/{user_id}")
-    public List<LessonDto> getPermanentLessons(@PathVariable int userId) {
-        return userService.getPermanentLessons(userId);
+    public ResponseEntity<List<LessonDto>> getPermanentLessons(@PathVariable int user_id) {
+        List<LessonDto> permanentLessons = userService.getPermanentLessons(user_id);
+        return ResponseEntity.ok(permanentLessons);
     }
     @PostMapping("/callback")
     public ResponseEntity<String> callback(
