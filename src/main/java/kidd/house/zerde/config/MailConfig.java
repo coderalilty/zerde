@@ -18,24 +18,24 @@ public class MailConfig {
     private String password;
     @Value("${spring.mail.port}")
     private int port;
-    @Value("${spring.mail.protocol}")
-    private String protocol;
-    @Value("${mail.debug}")
-    private String debug;
+
     @Bean
-    public JavaMailSender getMailSender(){
+    public JavaMailSender getMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);
         mailSender.setPort(port);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
-        Properties properties = mailSender.getJavaMailProperties();
-        properties.setProperty("mail.transport.protocol", protocol);
-        properties.setProperty("mail.debug", debug);
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        // Эти две строки критичны для Gmail на 587 порту:
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
 
+        props.put("mail.debug", "true");
 
         return mailSender;
     }
 }
-

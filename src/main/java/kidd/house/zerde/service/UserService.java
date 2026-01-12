@@ -19,7 +19,5 @@ public interface UserService {
 
     List<LessonDto> getPermanentLessons(int user_id);
 
-    KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto);
-
     void finalizePaymentAndCreateSubscription(String s, String status);
 }

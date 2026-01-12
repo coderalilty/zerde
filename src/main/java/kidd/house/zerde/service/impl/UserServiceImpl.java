@@ -6,7 +6,7 @@ import kidd.house.zerde.dto.user.*;
 import kidd.house.zerde.model.entity.*;
 import kidd.house.zerde.model.type.LessonType;
 import kidd.house.zerde.repo.*;
-import kidd.house.zerde.service.KaspiService;
+import kidd.house.zerde.service.FreedomPayService;
 import kidd.house.zerde.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +25,9 @@ public class UserServiceImpl implements UserService {
     private final SubscriptionRepo subscriptionRepo;
     private final LessonRepo lessonRepo;
     private final SubscriptionPlanRepo subscriptionPlanRepo;
-    private final KaspiService kaspiService;
     private final PaymentRepo paymentRepo;
     private final ChildRepo childRepo;
+    private final FreedomPayService freedomPayService;
 
     @Bean
     public UserDetailsService userDetailsService(){
@@ -138,38 +138,6 @@ public class UserServiceImpl implements UserService {
         return lessonRepo.findAllByLessonTypeAndUserId(LessonType.PERMANENT, user_id).stream()
                 .map(this::toLessonDto)
                 .toList();
-    }
-
-    @Override
-    @Transactional
-    public KaspiPaymentResponseDto purchase(PurchaseSubscriptionDto dto) {
-        SubscriptionPlan plan = subscriptionPlanRepo.findByCode(dto.planCode());
-        if (plan == null) throw new IllegalArgumentException("Plan not found: " + dto.planCode());
-
-        int price = dto.pricePaid() == null ? plan.getPrice() : dto.pricePaid();
-
-        // Создаем локальную запись платежа (PENDING)
-        Payment payment = new Payment();
-        payment.setKaspiStatus("PENDING");
-        payment.setAmount(price);
-        payment.setChildId(dto.childId());
-        payment.setPlanCode(dto.planCode());
-        payment.setCreatedAt(LocalDateTime.now());
-        paymentRepo.save(payment);
-
-        // Создаем платёж в Kaspi
-        KaspiPaymentResponseDto response = kaspiService.createPayment(
-                price, payment.getId(), "Subscription " + dto.planCode()
-        );
-
-        // Сохраняем возвращенные данные от Kaspi
-        payment.setKaspiPaymentId(response.kaspiPaymentId());
-        payment.setKaspiStatus(response.status());
-        payment.setRedirectUrl(response.redirectUrl());
-        paymentRepo.save(payment);
-
-        // возвращаем клиенту ссылку/QR
-        return response;
     }
 
     @Override
